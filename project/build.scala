@@ -54,9 +54,6 @@ object build extends Build {
 
         "org.jsoup" % "jsoup" % "1.8.1",
 
-        // Money
-        "org.joda" % "joda-money" % "0.9.1",
-
         // For testing
         "org.scalatest" %% "scalatest" % "2.2.4" % "test"
       ),
