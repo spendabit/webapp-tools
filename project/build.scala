@@ -10,7 +10,7 @@ object build extends Build {
     file("."),
     settings = Seq(
 
-      organization := "Spendabit",
+      organization := "co.spendabit",
       name := "Webapp Tools",
       version := libVersion,
 
