@@ -3,7 +3,7 @@ import Keys._
 
 object build extends Build {
 
-  val libVersion = "0.0.1"
+  val libVersion = "0.0.2"
 
   lazy val project = Project (
     "webapp-tools",
@@ -51,11 +51,9 @@ object build extends Build {
       resolvers ++= Seq(Classpaths.typesafeReleases),
 
       libraryDependencies ++= Seq(
-
         "org.jsoup" % "jsoup" % "1.8.1",
-
-        // For testing
-        "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+        "org.scalatest" %% "scalatest" % "2.2.4",
+        "org.scalatra" %% "scalatra-scalatest" % "2.3.0"
       ),
 
       scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src"),
