@@ -52,6 +52,8 @@ object build extends Build {
 
       libraryDependencies ++= Seq(
 
+        "org.jsoup" % "jsoup" % "1.8.1",
+
         // Money
         "org.joda" % "joda-money" % "0.9.1",
 
