@@ -9,7 +9,7 @@ case class PasswordInput(override val label: String, override val name: String,
   def valueAsString(value: String): String = value
 
   def validate(s: String) =
-    if (s.trim.length > minLength)
+    if (s.trim.length >= minLength)
       Right(s)
     else if (s.trim.length == 0)
       Left(s"Please provide a value for $label.")
