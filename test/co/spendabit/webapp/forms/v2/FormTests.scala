@@ -1,9 +1,9 @@
 package co.spendabit.webapp.forms.v2
 
+import java.net.URL
 import javax.mail.internet.InternetAddress
 
 import co.spendabit.webapp.forms.controls._
-//import co.spendabit.webapp.forms.v2.{BaseWebForm, WebForm2}
 import org.scalatest.FunSuite
 
 class FormTests extends FunSuite {
@@ -54,6 +54,17 @@ class FormTests extends FunSuite {
       val box = (markup \\ "input").find(n => getAttr(n, "value") == Some(opt)).get
       assert(getAttr(box, "checked").isEmpty)
     }
+  }
+
+  test("generated WebFormX code...") {
+    val form = new PostWebForm[(String, URL, InternetAddress, String)]
+            with WebForm4[String, URL, InternetAddress, String] {
+      def fields = (new Textarea(name = "f1", label = "Field 1"),
+                    new URLField(name = "f2", label = "Field 2"),
+                    new EmailField(name = "f2", label = "Field 3"),
+                    new TextInput(name = "f2", label = "Field 4"))
+    }
+    form.html
   }
 
   private def getInput(html: xml.NodeSeq, name: String): xml.Node =

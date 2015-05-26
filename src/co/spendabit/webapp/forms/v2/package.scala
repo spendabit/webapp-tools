@@ -22,16 +22,4 @@ package object v2 {
       Seq(f1.widgetHTML(vs))
     }
   }
-
-  trait WebForm2[A, B] extends v2.BaseWebForm[(A, B)] {
-    protected def fields: (LabeledControl[A], LabeledControl[B])
-    protected def f1 = fields._1
-    protected def f2 = fields._2
-    protected val fieldsSeq = Seq(f1, f2)
-    protected def seqToTuple(s: Seq[_]) = (s.head, s(1)).asInstanceOf[(A, B)]
-    protected def widgetsHTML(values: Option[(A, B)]): Seq[xml.NodeSeq] = {
-      val vs = values.map(vs => (Some(vs._1), Some(vs._2))).getOrElse((None, None))
-      Seq(f1.widgetHTML(vs._1), f2.widgetHTML(vs._2))
-    }
-  }
 }

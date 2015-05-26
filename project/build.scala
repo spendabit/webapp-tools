@@ -3,7 +3,7 @@ import Keys._
 
 object build extends Build {
 
-  val libVersion = "0.0.5"
+  val libVersion = "0.0.6"
 
   lazy val project = Project (
     "webapp-tools",
@@ -66,11 +66,11 @@ object build extends Build {
       testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oS"),
 
       sourceGenerators in Compile += Def.task {
-        val file = (sourceManaged in Compile).value / "co" / "spendabit" / "version.scala"
-        IO.write(file,
-          s"""package co.spendabit
-            |object version { def get = "$libVersion" }""".stripMargin)
-        Seq(file)
+        CodeGeneration.generatedFiles.map { f =>
+          val file = (sourceManaged in Compile).value / f.path.toString
+          IO.write(file, f.content)
+          file
+        }
       }.taskValue
     )
   )
