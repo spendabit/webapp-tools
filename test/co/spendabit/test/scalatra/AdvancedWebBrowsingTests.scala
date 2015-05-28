@@ -21,6 +21,21 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
       }
     }
   }
+
+  test("AdvancedWebBrowsing.submitForm ensures the provided form actually has a 'submit' button") {
+    class ItSubmitted extends Exception
+    get("/form-with-no-submit-button") {
+      try {
+        submitForm(getForm("form"), "theField" -> "a value") {}
+        throw new ItSubmitted
+      } catch {
+        case _: ItSubmitted =>
+          fail("The form had no 'submit' button, so should not have been submittable")
+        case _: org.scalatest.exceptions.TestFailedException =>
+        // We'll take it.
+      }
+    }
+  }
 }
 
 class TestServlet extends ScalatraServlet {
@@ -39,6 +54,14 @@ class TestServlet extends ScalatraServlet {
   post("/submit") {
     contentType = "text/plain"
     "POST"
+  }
+
+  get("/form-with-no-submit-button") {
+    page(
+      <form method="post" action="/submit">
+        <input type="text" name="theField" />
+        <button class="useless">Useless Button!</button>
+      </form>)
   }
 
   private def page(content: xml.NodeSeq) = {

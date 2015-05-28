@@ -32,6 +32,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     */
   protected def submitForm[A](form: Element, params: (String, String)*)(f: => A): A = {
 
+    assert(form.select("input[type=submit], button[type=submit]").length > 0)
+
     params.foreach { case (name, _) =>
       // TODO: Support form-fields that aren't <input/> elements.
       // TODO: Support submitting default values (specified via input's "value" attribute).
