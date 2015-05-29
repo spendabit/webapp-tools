@@ -12,7 +12,7 @@ case class PasswordInput(override val label: String, override val name: String,
     if (s.trim.length >= minLength)
       Right(s)
     else if (s.trim.length == 0)
-      Left(s"Please provide a value for $label.")
+      Left(s"Please provide a password.")
     else
-      Left(s"$label must be at least $minLength characters long.")
+      Left(s"The password must be at least $minLength characters long.")
 }
