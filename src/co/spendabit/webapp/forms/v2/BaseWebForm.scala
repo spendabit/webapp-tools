@@ -22,6 +22,9 @@ abstract class BaseWebForm[T] {
 
   protected def widgetsHTML(values: Option[T]): Seq[xml.NodeSeq]
 
+  type ValidationError = String
+  protected def crossFieldValidations: Seq[T => Option[ValidationError]] = Seq()
+
   def html(params: Map[String, Seq[String]] = Map()): xml.NodeSeq =
     co.spendabit.webapp.forms.util.populateFormFields(html, params)
 
@@ -78,9 +81,14 @@ abstract class BaseWebForm[T] {
 
     val validationResults = fieldsSeq.map(f => f.validate(params))
 
-    if (validationResults.count(_.isRight) == validationResults.length)
-      Valid(seqToTuple(validationResults.map(_.right.get)))
-    else
+    if (validationResults.count(_.isRight) == validationResults.length) {
+      val tupledValues = seqToTuple(validationResults.map(_.right.get))
+      crossFieldValidations.map(f => f(tupledValues)).flatten match {
+        case Seq()  => Valid(tupledValues)
+        case errors => Invalid(errors)
+      }
+    } else {
       Invalid(validationResults.map(_.left.toSeq).flatten)
+    }
   }
 }

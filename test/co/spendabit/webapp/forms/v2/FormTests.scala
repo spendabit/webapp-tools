@@ -56,6 +56,21 @@ class FormTests extends FunSuite {
     }
   }
 
+  test("cross-field validations") {
+    val form = new PostWebForm[(String, String)] with WebForm2[String, String] {
+      protected def fields = (new PasswordInput(name = "pass1", label = "Password",
+                                minLength = 3),
+                              new PasswordInput(name = "pass2", label = "Confirm Password",
+                                minLength = 3))
+      override protected def crossFieldValidations = Seq(
+        { case (p1, p2) => if (p1 != p2) Some("Passwords must match.") else None }
+      )
+    }
+
+    assert(!form.validate(Map("pass1" -> Seq("something"), "pass2" -> Seq("other.thing"))).isValid)
+    assert(form.validate(Map("pass1" -> Seq("same.thing"), "pass2" -> Seq("same.thing"))).isValid)
+  }
+
   test("generated WebFormX code...") {
     val form = new PostWebForm[(String, URL, InternetAddress, String)]
             with WebForm4[String, URL, InternetAddress, String] {
