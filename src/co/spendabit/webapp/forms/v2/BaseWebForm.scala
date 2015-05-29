@@ -25,9 +25,6 @@ abstract class BaseWebForm[T] {
   def html(params: Map[String, Seq[String]] = Map()): xml.NodeSeq =
     co.spendabit.webapp.forms.util.populateFormFields(html, params)
 
-  private def getAttr(e: xml.Elem, attr: String): Option[String] =
-    e.attribute(attr).map(_.headOption.map(_.toString())).flatten
-
   def html: xml.NodeSeq = {
     val fieldsMarkup: xml.NodeSeq = {
       val labels = fieldsSeq.map { f =>
