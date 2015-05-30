@@ -4,6 +4,7 @@ import java.net.URL
 import javax.mail.internet.InternetAddress
 
 import co.spendabit.webapp.forms.controls._
+import co.spendabit.webapp.forms.ui.bootstrap
 import org.scalatest.FunSuite
 
 class FormTests extends FunSuite {
@@ -70,6 +71,27 @@ class FormTests extends FunSuite {
     assert(!form.validate(Map("pass1" -> Seq("something"), "pass2" -> Seq("other.thing"))).isValid)
     assert(form.validate(Map("pass1" -> Seq("same.thing"), "pass2" -> Seq("same.thing"))).isValid)
   }
+
+  test("rendering using `FormRenderer` instance") {
+
+    val renderer = new bootstrap.HorizontalForm
+    val form = new PostWebForm[(String, URL)] with WebForm2[String, URL] {
+      def fields = (new TextInput(name = "name", label = "Name"),
+                    new URLField(name = "website", label = "Website"))
+    }
+
+    val formHTML = form.html(renderer).head
+    assert(getAttr(formHTML, "action").isDefined)
+    assert(getAttr(formHTML, "method").map(_.toLowerCase) == Some("post"))
+    assert((formHTML \\ "button").length > 0)
+
+    val formWithValues = form.html(renderer, Map("website" -> Seq("www.sing.com")))
+    val websiteInput = getInput(formWithValues, "website")
+    assert(getAttr(websiteInput, "value") == Some("www.sing.com"))
+  }
+
+//  implicit def toMapOfStringToSeqString(m: Map[String, String]): Map[String, Seq[String]] =
+//    m.map(x => (x._1, Seq(x._2)))
 
   test("generated WebFormX code...") {
     val form = new PostWebForm[(String, URL, InternetAddress, String)]

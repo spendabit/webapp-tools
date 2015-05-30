@@ -3,6 +3,8 @@ package co.spendabit.webapp.forms.v2
 import javax.servlet.http.HttpServletRequest
 
 import co.spendabit.webapp.forms.controls.LabeledControl
+import co.spendabit.webapp.forms.ui.FormRenderer
+import co.spendabit.webapp.forms.util.withAttrs
 
 abstract class BaseWebForm[T] {
 
@@ -24,6 +26,27 @@ abstract class BaseWebForm[T] {
 
   type ValidationError = String
   protected def crossFieldValidations: Seq[T => Option[ValidationError]] = Seq()
+
+  def html(renderer: FormRenderer, params: Map[String, Seq[String]]): xml.NodeSeq =
+    co.spendabit.webapp.forms.util.populateFormFields(html(renderer), params)
+
+  def html(renderer: FormRenderer): xml.NodeSeq = {
+    val fieldsMarkup = {
+
+      val widgets = widgetsHTML(None) // XXX
+      val combined = fieldsSeq.zip(widgets).map { case (controlObject, controlHTML) =>
+        // TODO: Add 'id' to control and 'for' to label!
+        renderer.labeledControl(controlObject.label, controlHTML)
+      }
+
+      combined.tail.foldLeft(xml.NodeSeq.fromSeq(combined.head)) {
+        case (soFar, e) => soFar ++ e
+      }
+    }
+
+    // TODO: Set encoding!
+    withAttrs(renderer.formElem(fieldsMarkup), "action" -> action, "method" -> method.value)
+  }
 
   def html(params: Map[String, Seq[String]] = Map()): xml.NodeSeq =
     co.spendabit.webapp.forms.util.populateFormFields(html, params)
@@ -48,17 +71,7 @@ abstract class BaseWebForm[T] {
       }
     }
 
-    /* If the form includes an <input type="file" .../> node, we need to use multipart/form-data. */
-    val encoding = {
-      val fileInputs = (fieldsMarkup \\ "input").filter {
-        _.attribute("type") match {
-          case Some(Seq(xml.Text(v))) => v.toLowerCase == "file"
-          case None => false
-        }
-      }
-      if (fileInputs.length > 0) "multipart/form-data"
-      else "application/x-www-form-urlencoded"
-    }
+    val encoding = decideEncoding(fieldsMarkup)
 
     <form action={ action } method={ method.value } enctype={ encoding }
           class="form-horizontal" role="form">
@@ -91,4 +104,18 @@ abstract class BaseWebForm[T] {
       Invalid(validationResults.map(_.left.toSeq).flatten)
     }
   }
+
+  /** If the form includes an <input type="file" .../> node, we need to use multipart/form-data.
+    */
+  private def decideEncoding(formHTML: xml.NodeSeq): String = {
+    val fileInputs = (formHTML \\ "input").filter {
+      _.attribute("type") match {
+        case Some(Seq(xml.Text(v))) => v.toLowerCase == "file"
+        case None => false
+      }
+    }
+    if (fileInputs.length > 0) "multipart/form-data"
+    else "application/x-www-form-urlencoded"
+  }
+
 }
