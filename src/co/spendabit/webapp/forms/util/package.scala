@@ -34,14 +34,12 @@ package object util {
         if (n == Some(fieldName)) {
           // TODO: Add support for other <input/> types!
           if (t == "radio") {
-            val newAttr = new UnprefixedAttribute("checked", "checked", xml.Null)
             if (getAttr(e, "value") == Some(value))
-              e.copy(attributes = e.attributes.append(newAttr))
+              withAttr(e, "checked", "checked")
             else
               e
           } else {
-            val newAttr = new UnprefixedAttribute("value", value, xml.Null)
-            e.copy(attributes = e.attributes.append(newAttr))
+            withAttr(e, "value", value)
           }
         } else e
       case e: xml.Elem =>
@@ -50,6 +48,13 @@ package object util {
         n
     }
 
-  private def getAttr(e: xml.Elem, attr: String): Option[String] =
+  // XXX: Remove any existing attributes for `key`?
+  def withAttr(e: xml.Elem, key: String, value: String) =
+    e.copy(attributes = e.attributes.append(new UnprefixedAttribute(key, value, xml.Null)))
+
+  def withAttrs(e: xml.Elem, attrs: (String, String)*) =
+    attrs.foldLeft(e) { case (elem, attr) => withAttr(elem, attr._1, attr._2) }
+
+  def getAttr(e: xml.Elem, attr: String): Option[String] =
     e.attribute(attr).map(_.headOption.map(_.toString())).flatten
 }
