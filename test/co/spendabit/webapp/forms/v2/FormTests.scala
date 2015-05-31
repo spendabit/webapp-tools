@@ -94,6 +94,11 @@ class FormTests extends FunSuite {
       case Invalid(_) => fail("Form should have validated")
       case Valid(v) => assert(v == Banana)
     }
+
+    val rendered = form.html(params = Map("fruit" -> Seq("orange")))
+    val opt = (rendered \\ "option").filter(o => getAttr(o, "value") == Some("orange")).head
+    assert(getAttr(opt, "selected").isDefined)
+    assert(getAttr(opt, "selected") == Some("selected"))
   }
 
   test("cross-field validations") {

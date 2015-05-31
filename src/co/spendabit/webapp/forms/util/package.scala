@@ -44,8 +44,20 @@ package object util {
         } else e
       case e: xml.Elem if e.label == "textarea" && getAttr(e, "name") == Some(fieldName) =>
         e.copy(child = Seq(xml.Text(value)))
+      case e: xml.Elem if e.label == "select" && getAttr(e, "name") == Some(fieldName) =>
+        e.copy(child = withOptionSelected(e.child, value))
       case e: xml.Elem =>
         e.copy(child = e.child.map(c => setValue(c, fieldName, value)))
+      case n =>
+        n
+    }
+
+  private def withOptionSelected(elems: Seq[xml.Node], value: String): Seq[xml.Node] =
+    elems.map {
+      case opt: xml.Elem if opt.label == "option" =>
+        if (getAttr(opt, "value") == Some(value)) withAttr(opt, "selected", "selected") else opt
+      case e: xml.Elem =>
+        e.copy(child = withOptionSelected(e.child, value))
       case n =>
         n
     }
