@@ -42,6 +42,8 @@ package object util {
             withAttr(e, "value", value)
           }
         } else e
+      case e: xml.Elem if e.label == "textarea" && getAttr(e, "name") == Some(fieldName) =>
+        e.copy(child = Seq(xml.Text(value)))
       case e: xml.Elem =>
         e.copy(child = e.child.map(c => setValue(c, fieldName, value)))
       case n =>

@@ -16,16 +16,20 @@ class FormTests extends FunSuite {
 
   test("rendering with entered values") {
 
-    val f = new BaseWebForm[(InternetAddress, String)] with WebForm2[InternetAddress, String] {
+    val f = new BaseWebForm[(InternetAddress, String, String)]
+              with WebForm3[InternetAddress, String, String] {
       def action = "./"
       def method = POST
       def fields = (new EmailField(label = "Email address", name = "theEmail"),
-                    new TextInput(label = "Your story", name = "story"))
+                    new TextInput(label = "Your name", name = "nombre"),
+                    new Textarea(label = "Your story", name = "story"))
     }
-    val markup = f.html(Map("theEmail" -> Seq("not-valid"), "story" -> Seq("a bold tale")))
 
-    Seq("theEmail" -> "not-valid", "story" -> "a bold tale").foreach { case (n, v) =>
-      assert(getAttr(getInput(markup, name = n), "value") === Some(v))
+    val enteredValues = Map("theEmail" -> "not-valid", "nombre" -> "José", "story" -> "a bold tale")
+    val markup = f.html(enteredValues.map(x => (x._1, Seq(x._2))))
+
+    enteredValues.foreach { case (n, v) =>
+      assert(getControlValue(markup, name = n) === Some(v))
     }
   }
 
@@ -152,9 +156,25 @@ class FormTests extends FunSuite {
     form.html
   }
 
+  private def getControlValue(html: xml.NodeSeq, name: String): Option[String] = {
+    val control = getControl(html, name)
+    control.label match {
+      case "input"    => getAttr(control, "value")
+      case "textarea" => Some(control.child.text)
+      case l          => fail(s"Unsupported control type: $l")
+    }
+  }
+
   private def getInput(html: xml.NodeSeq, name: String): xml.Node =
-    (html \\ "input").find(n => getAttr(n, "name") == Some(name)).
-      getOrElse(fail(s"No input with name '$name' found"))
+    getControl(html, name, Seq("input"))
+
+  private def getControl(html: xml.NodeSeq, name: String,
+                         nodeTypes: Seq[String] = Seq("input", "textarea")): xml.Node = {
+
+    val allControls = nodeTypes.map(t => html \\ t).flatten
+    allControls.find(n => getAttr(n, "name") == Some(name)).
+      getOrElse(fail(s"No form-control with name '$name' found"))
+  }
 
   private def getAttr(n: xml.Node, attr: String): Option[String] =
     n.attribute(attr).map(_.headOption).flatten.map(_.toString())
