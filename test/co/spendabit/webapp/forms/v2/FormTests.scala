@@ -57,6 +57,18 @@ class FormTests extends FunSuite {
     }
   }
 
+  test("functionality of checkbox field") {
+
+    val form = new PostWebForm[Boolean] with WebForm1[Boolean] {
+      override def fields = Checkbox(label = "Check here if you like Moesha.", name = "moesha")
+    }
+
+    assert(form.validate(Map("moesha" -> Seq("on"))).isValid,
+      "Checkbox should validate successfully if it's checked (\"on\")")
+    assert(form.validate(Map.empty[String, Seq[String]]).isValid,
+      "Checkbox should validate successfully if it's not checked")
+  }
+
   test("cross-field validations") {
     val form = new PostWebForm[(String, String)] with WebForm2[String, String] {
       protected def fields = (new PasswordInput(name = "pass1", label = "Password",

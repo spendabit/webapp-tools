@@ -1,7 +1,7 @@
 package co.spendabit.webapp.forms.controls
 
-case class Checkbox(override val label: String, override val name: String)
-        extends TextEntryControl[Boolean](label, name) {
+case class Checkbox(override val label: String, name: String)
+        extends LabeledControl[Boolean](label) {
 
   override def widgetHTML(value: Option[Boolean] = None): xml.NodeSeq =
       <input type="checkbox" name={ name }
@@ -9,5 +9,6 @@ case class Checkbox(override val label: String, override val name: String)
 
   // XXX: Should any value be considered invalid?
   // XXX: Should it only be "checked" if the submitted value is "on"?
-  def validate(s: String) = Right(if (s == "on") true else false)
+  def validate(params: Map[String, Seq[String]]): Either[String, Boolean] =
+    Right(if (params.get(name) == Seq("on")) true else false)
 }
