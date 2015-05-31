@@ -15,11 +15,7 @@ class HorizontalForm extends FormRenderer {
   def formElem(labeledControls: xml.NodeSeq): xml.Elem =
     <form class="form-horizontal" role="form">
       { labeledControls }
-      <div class="form-group form-submit">
-        <div class="col-sm-offset-3 col-sm-9">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </div>
+      { submitSection }
     </form>
 
   def labeledControl(label: String, control: xml.NodeSeq): xml.NodeSeq =
@@ -41,12 +37,14 @@ class HorizontalForm extends FormRenderer {
       }
     }</div>
 
-  def submitSection: xml.NodeSeq =
+  protected def submitSection: xml.NodeSeq =
     <div class="form-group form-submit">
       <div class={ s"col-xs-12 col-sm-offset-$leftColumnWidth col-sm-$rightColumnWidth" }>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">{ submitButtonLabel }</button>
       </div>
     </div>
+
+  protected def submitButtonLabel: String = "Submit"
 
   private def rightColumnWidth: Int = {
     if (leftColumnWidth < 1 || leftColumnWidth > 11)
