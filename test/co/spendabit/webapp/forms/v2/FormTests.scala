@@ -60,13 +60,36 @@ class FormTests extends FunSuite {
   test("functionality of checkbox field") {
 
     val form = new PostWebForm[Boolean] with WebForm1[Boolean] {
-      override def fields = Checkbox(label = "Check here if you like Moesha.", name = "moesha")
+      def fields = Checkbox(label = "Check here if you like Moesha.", name = "moesha")
     }
 
     assert(form.validate(Map("moesha" -> Seq("on"))).isValid,
       "Checkbox should validate successfully if it's checked (\"on\")")
     assert(form.validate(Map.empty[String, Seq[String]]).isValid,
       "Checkbox should validate successfully if it's not checked")
+  }
+
+  test("functionality of select field") {
+
+    sealed trait Fruit { def name: String }
+    object Apple  extends Fruit { val name = "Apple" }
+    object Orange extends Fruit { val name = "Orange" }
+    object Banana extends Fruit { val name = "Banana" }
+
+    object FruitSelector extends SelectField[Fruit]("Favorite fruit", name = "fruit",
+                                                    options = Seq(Apple, Orange, Banana)) {
+      protected def optionValue(opt: Fruit): String = opt.name.toLowerCase
+      protected def optionLabel(opt: Fruit): String = opt.name
+    }
+
+    val form = new PostWebForm[Fruit] with WebForm1[Fruit] {
+      def fields = FruitSelector
+    }
+
+    form.validate(Map("fruit" -> Seq("banana"))) match {
+      case Invalid(_) => fail("Form should have validated")
+      case Valid(v) => assert(v == Banana)
+    }
   }
 
   test("cross-field validations") {
@@ -87,7 +110,7 @@ class FormTests extends FunSuite {
   test("form is given proper 'enctype'") {
 
     val formWithNoFileInput = new PostWebForm[String] with WebForm1[String] {
-      override def fields = TextInput(label = "Enter a value", name = "the-value")
+      def fields = TextInput(label = "Enter a value", name = "the-value")
     }
     val f = formWithNoFileInput.html.asInstanceOf[xml.Elem]
     assert(f.label == "form")
