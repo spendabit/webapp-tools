@@ -84,6 +84,19 @@ class FormTests extends FunSuite {
     assert(form.validate(Map("pass1" -> Seq("same.thing"), "pass2" -> Seq("same.thing"))).isValid)
   }
 
+  test("form is given proper 'enctype'") {
+
+    val formWithNoFileInput = new PostWebForm[String] with WebForm1[String] {
+      override def fields = TextInput(label = "Enter a value", name = "the-value")
+    }
+    val f = formWithNoFileInput.html.asInstanceOf[xml.Elem]
+    assert(f.label == "form")
+    getAttr(f, "enctype").foreach { enc => assert(enc != "multipart/form-data") }
+
+    pending
+    // TODO: Make sure it uses 'enctype=multipart/form-data' if there's no 'file' input.
+  }
+
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
