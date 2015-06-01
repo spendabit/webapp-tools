@@ -38,6 +38,8 @@ package object util {
               withAttr(e, "checked", "checked")
             else
               e
+          } else if (t == "checkbox") {
+            if (value == "on") withAttr(e, "checked", "checked") else e
           } else {
             withAttr(e, "value", value)
           }
