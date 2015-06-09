@@ -44,6 +44,12 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
       }
     }
   }
+
+  test("getFollowingRedirects properly handles redirect locations with query-string") {
+    getFollowingRedirects("/a") {
+      assert(body == "with is c")
+    }
+  }
 }
 
 class TestServlet extends ScalatraServlet {
@@ -81,6 +87,15 @@ class TestServlet extends ScalatraServlet {
         <input type="text" name="theField" />
         <button class="useless">Useless Button!</button>
       </form>)
+  }
+
+  get("/a") {
+    redirect("/b?with=c")
+  }
+
+  get("/b") {
+    contentType = "text/plain"
+    "with is " + params.get("with").getOrElse("")
   }
 
   private def page(content: xml.NodeSeq) = {
