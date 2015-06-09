@@ -22,6 +22,14 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
+  test("AdvancedWebBrowsing.submitForm properly submits values for 'hidden' fields/inputs") {
+    get("/form-with-hidden-field") {
+      submitForm(getForm("form")) {
+        assert(body.contains("hi: don't forget me!"))
+      }
+    }
+  }
+
   test("AdvancedWebBrowsing.submitForm ensures the provided form actually has a 'submit' button") {
     class ItSubmitted extends Exception
     get("/form-with-no-submit-button") {
@@ -54,6 +62,17 @@ class TestServlet extends ScalatraServlet {
   post("/submit") {
     contentType = "text/plain"
     "POST"
+  }
+
+  get("/form-with-hidden-field") {
+    page(<form method="post" action="/echo-params">
+      <input type="hidden" name="hi" value="don't forget me!" /> <button type="submit">Go</button>
+    </form>)
+  }
+
+  post("/echo-params") {
+    contentType = "text/plain"
+    params.map(p => p._1 + ": " + p._2).mkString("\n")
   }
 
   get("/form-with-no-submit-button") {
