@@ -80,9 +80,9 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     }
   }
 
-  private def isRedirectResponse = status >= 300 && status < 400
+  protected def isRedirectResponse = status >= 300 && status < 400
 
-  private def redirectLocation: String = {
+  protected def redirectLocation: String = {
     val location = header.getOrElse("Location",
       throw new Exception(s"$status response with no Location header?"))
     if (location.startsWith("/"))
