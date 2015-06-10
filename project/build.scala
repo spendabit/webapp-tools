@@ -3,7 +3,7 @@ import Keys._
 
 object build extends Build {
 
-  val libVersion = "0.0.19"
+  val libVersion = "0.0.20"
 
   lazy val project = Project (
     "webapp-tools",
@@ -53,7 +53,7 @@ object build extends Build {
       libraryDependencies ++= Seq(
         "javax.mail" % "mail" % "1.4.7",
         "commons-validator" % "commons-validator" % "1.4.1",
-        "org.jsoup" % "jsoup" % "1.8.1",
+        "org.jsoup" % "jsoup" % "1.8.2",
         "org.scalatest" %% "scalatest" % "2.2.4",
         "org.scalatra" %% "scalatra-scalatest" % "2.3.0",
         "org.scalatra" %% "scalatra" % "2.3.0" % "test"
