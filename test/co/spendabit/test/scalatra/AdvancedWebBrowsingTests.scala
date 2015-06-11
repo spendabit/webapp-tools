@@ -45,6 +45,15 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
+  test("'submitForm' properly handles forms that use relative path 'action' attribute") {
+    get("/site-section/the-form") {
+      submitForm(getForm("form"), context = Some("/site-section/the-form"), Seq()) {
+        assert(status >= 200 && status < 300)
+        assert(body.contains("Submitted!"))
+      }
+    }
+  }
+
   test("getFollowingRedirects properly handles redirect locations with query-string") {
     getFollowingRedirects("/a") {
       assert(body == "with is c")
@@ -89,6 +98,17 @@ class TestServlet extends ScalatraServlet {
       </form>)
   }
 
+  get("/site-section/the-form") {
+    page(
+      <form method="post" action="./submit-to">
+        <button type="submit">Submit</button>
+      </form>)
+  }
+
+  post("/site-section/submit-to") {
+    plainText("Submitted!")
+  }
+
   get("/a") {
     redirect("/b?with=c")
   }
@@ -96,6 +116,11 @@ class TestServlet extends ScalatraServlet {
   get("/b") {
     contentType = "text/plain"
     "with is " + params.get("with").getOrElse("")
+  }
+
+  private def plainText(text: String) = {
+    contentType = "text/plain"
+    text
   }
 
   private def page(content: xml.NodeSeq) = {

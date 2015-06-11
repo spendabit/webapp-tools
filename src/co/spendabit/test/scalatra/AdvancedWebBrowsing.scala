@@ -29,8 +29,12 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
   }
 
   /** Submit the given `form` represented as a Jsoup `Element`, using the given `params`.
+    * @param context A relative path indicating the URI at which this form was
+    *                served (e.g. /path-to/page-with-form.html), necessary in cases where the
+    *                form has an 'action' that's a relative path (e.g. ./submit-here.html).
     */
-  protected def submitForm[A](form: Element, params: (String, String)*)(f: => A): A = {
+  protected def submitForm[A](form: Element, context: Option[String],
+                              params: Seq[(String, String)])(f: => A): A = {
 
     assert(form.select("input[type=submit], button[type=submit]").length > 0,
       "The provided form has no submit buttons")
@@ -47,8 +51,17 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       form.select("input[value]").filter(i => Seq("text", "hidden").contains(i.attr("type"))).
         map(i => (i.attr("name"), i.attr("value")))
 
-    // TODO: Support case where 'action' contains a full URL or relative path.
-    val uri = form.attr("action")
+    // TODO: Support case where 'action' contains a full URL or absolute path.
+    val action = form.attr("action")
+    val uri =
+      if (action.toLowerCase.startsWith("http://") || action.toLowerCase.startsWith("https://"))
+        fail("Forms with URL in 'action' attribute not presently supported")
+      else if (action.startsWith("./"))
+        context.map(p => new java.io.File(p).getParent + "/" + action.stripPrefix("./")).
+          getOrElse(fail("Cannot submit form with 'action' having relative path when no " +
+                         "'context' was provided"))
+      else
+        action
 
     val valuesToSubmit = (defaultValues.toMap ++ params.toMap).toSeq
     form.attr("method").toLowerCase match {
@@ -57,6 +70,11 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       case m      => fail(s"Form has unsupported method, '$m'")
     }
   }
+
+  /** Submit the given `form` represented as a Jsoup `Element`, using the given `params`.
+    */
+  protected def submitForm[A](form: Element, params: (String, String)*)(f: => A): A =
+    submitForm(form, None, params)(f)
 
   /** Make a GET request, making subsequent requests for any 300-level HTTP responses.
     */
