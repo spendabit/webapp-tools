@@ -42,7 +42,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     params.foreach { case (name, _) =>
       // TODO: Support form-fields that aren't <input/> elements.
       // TODO: Support submitting default values (specified via input's "value" attribute).
-      assert(form.select(s"input[name=$name], select[name=$name]").length > 0,
+      assert(
+        form.select(s"input[name=$name], textarea[name=$name], select[name=$name]").length > 0,
         s"Form must have field named '$name'")
     }
 

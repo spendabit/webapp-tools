@@ -22,10 +22,18 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
-  test("AdvancedWebBrowsing.submitForm properly submits values for 'hidden' fields/inputs") {
+  test("'submitForm' properly submits values for 'hidden' fields/inputs") {
     get("/form-with-hidden-field") {
       submitForm(getForm("form")) {
         assert(body.contains("hi: don't forget me!"))
+      }
+    }
+  }
+
+  test("'submitForm' properly submits values for 'textarea' elements") {
+    get("/form-with-textarea") {
+      submitForm(getForm("form"), "comments" -> "time for a refill") {
+        assert(body.contains("time for a refill"))
       }
     }
   }
@@ -82,6 +90,12 @@ class TestServlet extends ScalatraServlet {
   get("/form-with-hidden-field") {
     page(<form method="post" action="/echo-params">
       <input type="hidden" name="hi" value="don't forget me!" /> <button type="submit">Go</button>
+    </form>)
+  }
+
+  get("/form-with-textarea") {
+    page(<form method="post" action="/echo-params">
+      <textarea name="comments"></textarea> <button type="submit">Go</button>
     </form>)
   }
 
