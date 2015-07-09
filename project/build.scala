@@ -3,7 +3,7 @@ import Keys._
 
 object build extends Build {
 
-  val libVersion = "0.0.25"
+  val libVersion = "0.0.26"
 
   lazy val project = Project (
     "webapp-tools",
@@ -14,7 +14,7 @@ object build extends Build {
       name := "Webapp Tools",
       version := libVersion,
 
-      scalaVersion := "2.11.6",
+      scalaVersion := "2.11.7",
       scalacOptions ++= Seq("-feature", "-language:implicitConversions"),
 
       publishMavenStyle := true,
