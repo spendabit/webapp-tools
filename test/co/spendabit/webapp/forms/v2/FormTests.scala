@@ -9,15 +9,32 @@ import org.scalatest.FunSuite
 
 class FormTests extends FunSuite {
 
-  abstract case class PostWebForm[T](action: String = "/post-here")
-          extends BaseWebForm[T] {
+  trait PostWebForm[T] extends BaseWebForm[T] {
     def method = POST
+    def action = "/post-here"
+  }
+
+  test("basic form rendering") {
+
+    val f = new WebForm3[InternetAddress, String, String]
+              with PostWebForm[(InternetAddress, String, String)] {
+      def fields =
+        (new EmailField(label = "Email address", name = "theEmail"),
+         new PasswordInput(label = "Password", name = "pass", minLength = 7),
+         new Textarea(label = "Your story", name = "story"))
+    }
+    val markup = f.html
+
+    assert(containsInputWithName(markup, "theEmail"))
+    assert(containsInputWithName(markup, "pass"))
+    assert(containsInputWithName(markup, "story", nodeType = "textarea"))
+
+    assert((markup \\ "label").length > 0)
   }
 
   test("rendering with entered values") {
 
-    val f = new BaseWebForm[(InternetAddress, String, String)]
-              with WebForm3[InternetAddress, String, String] {
+    val f = new WebForm3[InternetAddress, String, String] {
       def action = "./"
       def method = POST
       def fields = (new EmailField(label = "Email address", name = "theEmail"),
@@ -109,6 +126,17 @@ class FormTests extends FunSuite {
     assert(getAttr(opt, "selected") == Some("selected"))
   }
 
+  test("basic validation") {
+
+    val f = new WebForm2[String, URL] with PostWebForm[(String, URL)] {
+      def fields = (new TextInput(label = "Your name", name = "n"),
+                    new URLField(label = "Your website", name = "website"))
+    }
+
+    assert(f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("https://test.net"))).isValid)
+    assert(!f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("nada"))).isValid)
+  }
+
   test("cross-field validations") {
     val form = new PostWebForm[(String, String)] with WebForm2[String, String] {
       protected def fields = (new PasswordInput(name = "pass1", label = "Password",
@@ -158,7 +186,7 @@ class FormTests extends FunSuite {
 //  implicit def toMapOfStringToSeqString(m: Map[String, String]): Map[String, Seq[String]] =
 //    m.map(x => (x._1, Seq(x._2)))
 
-  test("generated WebFormX code...") {
+  test("code for WebFormX classes (e.g. `WebForm1`, `WebForm2`, etc) is properly generated") {
     val form = new PostWebForm[(String, URL, InternetAddress, String)]
             with WebForm4[String, URL, InternetAddress, String] {
       def fields = (new Textarea(name = "f1", label = "Field 1"),
@@ -177,6 +205,10 @@ class FormTests extends FunSuite {
       case l          => fail(s"Unsupported control type: $l")
     }
   }
+
+  private def containsInputWithName(html: xml.NodeSeq, name: String,
+                                    nodeType: String = "input"): Boolean =
+    (html \\ nodeType).filter(n => getAttr(n, "name") == Some(name)).length == 1
 
   private def getInput(html: xml.NodeSeq, name: String): xml.Node =
     getControl(html, name, Seq("input"))
