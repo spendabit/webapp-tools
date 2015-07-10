@@ -31,7 +31,7 @@ class HorizontalForm extends FormRenderer {
           /* XXX: The client 'BaseWebForm' class will be responsible for adding an 'id'. */
           <label class={ "col-xs-12 col-sm-" + leftColumnWidth + " control-label" }
                  >{ label }</label>
-          <div class={ "col-sm-" + rightColumnWidth }>
+          <div class={ "col-xs-12 col-sm-" + rightColumnWidth }>
             { withAttr(control, "class", "form-control") }
           </div>
       }
