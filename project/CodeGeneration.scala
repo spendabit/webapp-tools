@@ -29,7 +29,7 @@ object CodeGeneration {
       |
       |trait WebForm$n[$typeParamsStr] extends BaseWebForm[($typeParamsStr)] {
       |  protected def fields: (${ typeParamNames.map(t => s"LabeledControl[$t]").mkString(", ") })
-      |  protected val fieldsSeq = Seq(${ Range.inclusive(1, n).map("fields._" + _).mkString(", ") })
+      |  protected def fieldsSeq = Seq(${ Range.inclusive(1, n).map("fields._" + _).mkString(", ") })
       |  protected def seqToTuple(s: Seq[_]) =
       |   (${ Range.inclusive(0, n - 1).map("s(" + _ + ")").mkString(", ") }).
       |     asInstanceOf[($typeParamsStr)]

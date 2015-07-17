@@ -18,7 +18,7 @@ abstract class BaseWebForm[T] {
 
 //  protected val values: Seq[String] = Seq()
 
-  protected val fieldsSeq: Seq[LabeledControl[_]]
+  protected def fieldsSeq: Seq[LabeledControl[_]]
 
   protected def seqToTuple(s: Seq[_]): T
 
