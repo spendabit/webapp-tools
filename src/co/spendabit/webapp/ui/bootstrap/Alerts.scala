@@ -6,7 +6,7 @@ trait Alerts extends Glyphicons {
   case object SuccessAlert extends AlertContext { val slug = "success" }
   case object InfoAlert    extends AlertContext { val slug = "info"    }
   case object WarningAlert extends AlertContext { val slug = "warning" }
-  case object DangerAlert  extends AlertContext { val slug = "danger" }
+  case object DangerAlert  extends AlertContext { val slug = "danger"  }
 
   protected def alert(context: AlertContext, msg: xml.NodeSeq) =
     <div class={ s"alert alert-${context.slug}" } role="alert">{ msg }</div>
