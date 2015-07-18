@@ -152,6 +152,20 @@ class FormTests extends FunSuite {
     assert(form.validate(Map("pass1" -> Seq("same.thing"), "pass2" -> Seq("same.thing"))).isValid)
   }
 
+  test("use of 'Optional' field") {
+
+    val f = new PostWebForm[Option[InternetAddress]] with WebForm1[Option[InternetAddress]] {
+      def fields = Optional(EmailField(label = "Email", name = "email"))
+    }
+
+    val noParams = Map[String, Seq[String]]()
+    assert(f.validate(noParams).isValid)
+    assert(f.validate(Map("email" -> Seq(""))).isValid)
+    assert(f.validate(Map("email" -> Seq(" \t"))).isValid)
+    assert(f.validate(Map("email" -> Seq("jason@superstar.com"))).isValid)
+    assert(!f.validate(Map("email" -> Seq("jason"))).isValid)
+  }
+
   test("form is given proper 'enctype'") {
 
     val formWithNoFileInput = new PostWebForm[String] with WebForm1[String] {
