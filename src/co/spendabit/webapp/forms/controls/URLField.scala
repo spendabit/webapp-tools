@@ -1,18 +1,28 @@
 package co.spendabit.webapp.forms.controls
 
-import java.net.URL
+import java.net.{URL, MalformedURLException}
 
-case class URLField(override val label: String = "URL", override val name: String)
+case class URLField(override val label: String = "URL", override val name: String,
+                    requireProtocol: Boolean = false)
         extends GenericInput[URL](label, name) {
 
   def inputType = "url"
 
   def valueAsString(value: URL): String = value.toString
 
-//  def widgetHTML(id: String, value: Option[URL] = None) =
-//    widgetHTML(id, value.map(u => u.toString))
-
-  def validate(s: String) =
-    try Right(new java.net.URL(s))
-    catch { case _: Exception => Left("Please provide a valid URL.") }
+  def validate(s: String) = {
+    val withProtocol =
+      if (requireProtocol || s.matches("https?:.*"))
+        s
+      else
+        s"http://$s"
+    try {
+      val url = new URL(withProtocol)
+      if (url.getHost.contains('.') && url.getHost.split('.').last.length > 1)
+        Right(url)
+      else
+        throw new MalformedURLException
+    }
+    catch { case _: MalformedURLException => Left("Please provide a valid URL.") }
+  }
 }
