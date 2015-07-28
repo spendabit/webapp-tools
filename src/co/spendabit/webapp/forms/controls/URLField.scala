@@ -6,7 +6,10 @@ case class URLField(override val label: String = "URL", override val name: Strin
                     requireProtocol: Boolean = false)
         extends GenericInput[URL](label, name) {
 
-  def inputType = "url"
+  /** If `requireProtocol` is false, then we use a plain-old 'text' input, so web-browsers will
+    * allow users to enter values like "www.my-site.com".
+    */
+  def inputType = if (requireProtocol) "url" else "text"
 
   def valueAsString(value: URL): String = value.toString
 

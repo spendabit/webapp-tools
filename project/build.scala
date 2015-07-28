@@ -3,7 +3,7 @@ import Keys._
 
 object build extends Build {
 
-  val libVersion = "0.0.32"
+  val libVersion = "0.0.33"
 
   lazy val project = Project (
     "webapp-tools",
