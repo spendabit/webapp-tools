@@ -28,11 +28,17 @@ class HorizontalForm extends FormRenderer {
           </div>
 
         case _ =>
+
+          val withFormControlClass: Boolean = control match {
+            case e: xml.Elem => Seq("input", "textarea", "select").contains(e.label)
+            case _ => false
+          }
+
           /* XXX: The client 'BaseWebForm' class will be responsible for adding an 'id'. */
           <label class={ "col-xs-12 col-sm-" + leftColumnWidth + " control-label" }
                  >{ label }</label>
           <div class={ "col-xs-12 col-sm-" + rightColumnWidth }>
-            { withAttr(control, "class", "form-control") }
+            { if (withFormControlClass) withAttr(control, "class", "form-control") else control }
           </div>
       }
     }</div>
