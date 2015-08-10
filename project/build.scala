@@ -1,5 +1,6 @@
 import sbt._
 import Keys._
+import xerial.sbt.Sonatype.SonatypeKeys.sonatypeProfileName
 
 object build extends Build {
 
@@ -47,6 +48,8 @@ object build extends Build {
             <organizationUrl>https://spendabit.co/</organizationUrl>
           </developer>
         </developers>,
+
+      sonatypeProfileName := "co.spendabit",
 
       resolvers ++= Seq(Classpaths.typesafeReleases),
 
