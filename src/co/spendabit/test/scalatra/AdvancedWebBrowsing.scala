@@ -77,6 +77,12 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
   protected def submitForm[A](form: Element, params: (String, String)*)(f: => A): A =
     submitForm(form, None, params)(f)
 
+  /** A simple wrapper around `submitForm` that may be used when one, and *only one*, form is
+    * present on the current page.
+    */
+  protected def submitSoleForm[A](params: (String, String)*)(f: => A): A =
+    submitForm(getForm("form"), context = None, params)(f)
+
   /** Make a GET request, making subsequent requests for any 300-level HTTP responses.
     */
   protected def getFollowingRedirects[A](path: String, params: (String, String)*)(f: => A): A = {
