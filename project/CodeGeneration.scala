@@ -15,7 +15,7 @@ object CodeGeneration {
 
   // XXX: Surely this can be better done with Scala's macros, however, I still need to learn
   // XXX: how to use those... :P
-  private def webForms = Range.inclusive(2, 10).map { n =>
+  private def webForms = Range.inclusive(2, 22).map { n =>
 
     val typeParamNames = Range.inclusive('A', 'Z').map(_.toChar).take(n)
     assert(typeParamNames.length == n)

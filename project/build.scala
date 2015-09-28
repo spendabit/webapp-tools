@@ -4,7 +4,7 @@ import xerial.sbt.Sonatype.SonatypeKeys.sonatypeProfileName
 
 object build extends Build {
 
-  val libVersion = "0.0.37"
+  val libVersion = "0.0.38"
 
   lazy val project = Project (
     "webapp-tools",
