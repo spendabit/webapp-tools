@@ -92,10 +92,17 @@ class FormTests extends FunSuite {
     assert(getAttr(boxChecked, "checked").isDefined,
       "Checkbox should retain state when it is 'on'")
 
-    assert(form.validate(Map("moesha" -> Seq("on"))).isValid,
+    val validatedWithCheck = form.validate(Map("moesha" -> Seq("on")))
+    assert(validatedWithCheck.isValid,
       "Checkbox should validate successfully if it's checked (\"on\")")
-    assert(form.validate(Map.empty[String, Seq[String]]).isValid,
+    assert(validatedWithCheck.asInstanceOf[Valid[Boolean]].values,
+      "Checkbox should yield `true` value if it was checked")
+
+    val validatedWithoutCheck = form.validate(Map.empty[String, Seq[String]])
+    assert(validatedWithoutCheck.isValid,
       "Checkbox should validate successfully if it's not checked")
+    assert(!validatedWithoutCheck.asInstanceOf[Valid[Boolean]].values,
+      "Checkbox should yield `false` value if it was not checked")
   }
 
   test("functionality of select field") {

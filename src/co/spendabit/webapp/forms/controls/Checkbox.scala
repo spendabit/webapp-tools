@@ -13,5 +13,9 @@ case class Checkbox(override val label: String, name: String)
   // XXX: Are there any values that should be considered invalid?
   // XXX: Should it only be "checked" if the submitted value is "on"?
   def validate(params: Map[String, Seq[String]]): Either[String, Boolean] =
-    Right(if (params.get(name) == Seq("on")) true else false)
+    Right(
+      params.get(name) match {
+        case Some(Seq("on")) => true
+        case _               => false
+      })
 }
