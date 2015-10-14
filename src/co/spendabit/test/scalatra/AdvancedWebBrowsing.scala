@@ -50,7 +50,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     // TODO: Add support for default values in other control/input types (e.g. <select> elements).
     val defaultValues: Seq[(String, String)] =
       form.select("input[value]").filter(i => Seq("text", "hidden").contains(i.attr("type"))).
-        map(i => (i.attr("name"), i.attr("value")))
+        map(i => (i.attr("name"), i.attr("value"))) ++
+      form.select("textarea").map(ta => (ta.attr("name"), ta.text))
 
     // TODO: Support case where 'action' contains a full URL or absolute path.
     val action = form.attr("action")

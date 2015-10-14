@@ -31,9 +31,18 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
   }
 
   test("'submitForm' properly submits values for 'textarea' elements") {
+
+    info("should accept explicitly specified value")
     get("/form-with-textarea") {
-      submitForm(getForm("form"), "comments" -> "time for a refill") {
+      submitSoleForm("comments" -> "time for a refill") {
         assert(body.contains("time for a refill"))
+      }
+    }
+
+    info("should use the default value when no value is explicitly specified")
+    get("/form-with-textarea", "default" -> "coffee gone") {
+      submitSoleForm() {
+        assert(body.contains("coffee gone"))
       }
     }
   }
@@ -94,9 +103,11 @@ class TestServlet extends ScalatraServlet {
   }
 
   get("/form-with-textarea") {
-    page(<form method="post" action="/echo-params">
-      <textarea name="comments"></textarea> <button type="submit">Go</button>
-    </form>)
+    val default = params.getOrElse("default", "")
+    page(
+      <form method="post" action="/echo-params">
+        <textarea name="comments">{ default }</textarea> <button type="submit">Go</button>
+      </form>)
   }
 
   post("/echo-params") {
