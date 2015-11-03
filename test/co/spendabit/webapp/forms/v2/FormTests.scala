@@ -175,15 +175,34 @@ class FormTests extends FunSuite {
 
   test("form is given proper 'enctype'") {
 
-    val formWithNoFileInput = new PostWebForm[String] with WebForm1[String] {
+    // XXX: Yuck. We need a better way to do file-upload inputs.
+    case class FileUploadInput(override val label: String, name: String)
+            extends LabeledControl[Unit](label) {
+      def widgetHTML(value: Option[Unit]) = <input type="file" name={ name } />
+      def validate(params: Map[String, Seq[String]]) = Right(Unit)
+    }
+
+    val formWithoutFileInput = new PostWebForm[String] with WebForm1[String] {
       def fields = TextInput(label = "Enter a value", name = "the-value")
     }
-    val f = formWithNoFileInput.html.asInstanceOf[xml.Elem]
-    assert(f.label == "form")
-    getAttr(f, "enctype").foreach { enc => assert(enc != "multipart/form-data") }
+    val f1 = formWithoutFileInput.html.asInstanceOf[xml.Elem]
+    assert(f1.label == "form")
+    getAttr(f1, "enctype").foreach { enc => assert(enc != "multipart/form-data") }
 
-    pending
-    // TODO: Make sure it uses 'enctype=multipart/form-data' if there's no 'file' input.
+    val formWithFileInput = new PostWebForm[Unit] with WebForm1[Unit] {
+      def fields = FileUploadInput(label = "Upload a file", name = "f")
+    }
+    val f2 = formWithFileInput.html.asInstanceOf[xml.Elem]
+    assert(getAttr(f2, "enctype") == Some("multipart/form-data"))
+
+    // And ensure the proper 'enctype' even when rendering using a custom renderer...
+    val renderer = new bootstrap.HorizontalForm
+    val renderedWithout = formWithoutFileInput.html(renderer).asInstanceOf[xml.Elem]
+    getAttr(renderedWithout, "enctype").foreach { enc =>
+      assert(enc != "multipart/form-data")
+    }
+    val renderedWith = formWithFileInput.html(renderer).asInstanceOf[xml.Elem]
+    assert(getAttr(renderedWith, "enctype") == Some("multipart/form-data"))
   }
 
   test("rendering using `FormRenderer` instance") {

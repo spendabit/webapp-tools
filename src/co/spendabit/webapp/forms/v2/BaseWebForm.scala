@@ -42,8 +42,9 @@ abstract class BaseWebForm[T] {
       }
     }
 
-    // TODO: Set encoding!
-    withAttrs(renderer.formElem(fieldsMarkup), "action" -> action, "method" -> method.value)
+    val encoding = decideEncoding(fieldsMarkup)
+    withAttrs(renderer.formElem(fieldsMarkup), "action" -> action, "method" -> method.value,
+                                               "enctype" -> encoding)
   }
 
   def html(params: Map[String, Seq[String]] = Map()): xml.NodeSeq =
