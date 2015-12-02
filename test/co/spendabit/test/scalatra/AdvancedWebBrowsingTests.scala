@@ -71,6 +71,14 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
+  test("'submitForm' properly submits form with 'multipart/form-data' enctype") {
+    get("/form-with-multipart-enctype") {
+      submitSoleForm() {
+        assert(body.contains("multipart/form-data"))
+      }
+    }
+  }
+
   test("getFollowingRedirects properly handles redirect locations with query-string") {
     getFollowingRedirects("/a") {
       assert(body == "with is c")
@@ -141,6 +149,18 @@ class TestServlet extends ScalatraServlet {
   get("/b") {
     contentType = "text/plain"
     "with is " + params.get("with").getOrElse("")
+  }
+
+  get("/form-with-multipart-enctype") {
+    page(
+      <form method="post" action="/show-content-type" enctype="multipart/form-data">
+        <input type="hidden" name="field" value="abc" />
+        <button type="submit">Go!</button>
+      </form>)
+  }
+
+  post("/show-content-type") {
+    plainText(request.contentType.getOrElse(""))
   }
 
   private def plainText(text: String) = {
