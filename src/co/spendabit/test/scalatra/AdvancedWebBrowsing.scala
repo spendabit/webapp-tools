@@ -72,7 +72,11 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     val valuesToSubmit = (defaultValues.toMap ++ params.toMap).toSeq
     form.attr("method").toLowerCase match {
       case "get"  => get(uri, valuesToSubmit:_*)(f)
-      case "post" => post(uri, valuesToSubmit:_*)(f)
+      case "post" =>
+        if (form.attr("enctype") == "multipart/form-data")
+          post(uri, params = valuesToSubmit, files = Seq())(f)
+        else
+          post(uri, valuesToSubmit:_*)(f)
       case m      => fail(s"Form has unsupported method, '$m'")
     }
   }
