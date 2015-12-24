@@ -47,6 +47,23 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
+  test("'submitForm' properly supports 'select' controls") {
+
+    info("should accept explicity specified value")
+    get("/form-with-select-control") {
+      submitSoleForm("gender" -> "f") {
+        assert(body.contains("gender: f"))
+      }
+    }
+
+    info("should submit the default 'selected' value if no value is explicitly specified")
+    get("/form-with-select-control") {
+      submitSoleForm() {
+        assert(body.contains("gender: ?"))
+      }
+    }
+  }
+
   test("AdvancedWebBrowsing.submitForm ensures the provided form actually has a 'submit' button") {
     class ItSubmitted extends Exception
     get("/form-with-no-submit-button") {
@@ -107,6 +124,18 @@ class TestServlet extends ScalatraServlet {
     page(
       <form method="post" action="/echo-params">
         <textarea name="comments">{ default }</textarea> <button type="submit">Go</button>
+      </form>)
+  }
+
+  get("/form-with-select-control") {
+    page(
+      <form method="post" action="/echo-params">
+        <select name="gender">
+          <option value="m">Boy</option>
+          <option value="f">Girl</option>
+          <option value="?" selected="selected">Unsure</option>
+        </select>
+        <button type="submit">Go</button>
       </form>)
   }
 
