@@ -1,5 +1,7 @@
 package co.spendabit.test.scalatra
 
+import co.spendabit.webapp.forms.controls.SelectField
+import co.spendabit.webapp.forms.v2.WebForm1
 import org.scalatest.FunSuite
 import org.scalatra.ScalatraServlet
 
@@ -49,7 +51,7 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
 
   test("'submitForm' properly supports 'select' controls") {
 
-    info("should accept explicity specified value")
+    info("should accept explicitly specified value")
     get("/form-with-select-control") {
       submitSoleForm("gender" -> "f") {
         assert(body.contains("gender: f"))
@@ -60,6 +62,19 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     get("/form-with-select-control") {
       submitSoleForm() {
         assert(body.contains("gender: ?"))
+      }
+    }
+  }
+
+  /** To behave inline with popular browsers (Firefox and Chrome were explicitly tested), a
+    * <select> element that has no child-elements of type <option> should not cause an empty-string
+    * value to be sent to the server when submitting the containing form, but it should rather
+    * lead to *no* parameter being submitted at all.
+    */
+  test("select element with no options does not lead to an empty parameter") {
+    get("/form-with-empty-select-control") {
+      submitSoleForm() {
+        assert(body.trim == "")
       }
     }
   }
@@ -143,6 +158,14 @@ class TestServlet extends ScalatraServlet {
           <option value="f">Girl</option>
           <option value="?" selected="selected">Unsure</option>
         </select>
+        <button type="submit">Go</button>
+      </form>)
+  }
+
+  get("/form-with-empty-select-control") {
+    page(
+      <form method="post" action="/echo-params">
+        <select name="no-contest"> </select>
         <button type="submit">Go</button>
       </form>)
   }
