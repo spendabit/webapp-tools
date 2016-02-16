@@ -78,8 +78,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       map(i => (i.attr("name"), i.attr("value"))) ++
     form.select("textarea").map(ta => (ta.attr("name"), ta.text)) ++
     form.select("select").flatMap { s =>
-      // TODO: Support using the first <option>'s value when no 'selected' attribute is set!
-      s.select("option[selected]").headOption.map(o => (s.attr("name"), o.attr("value")))
+      s.select("option").sortBy(o => if (o.hasAttr("selected")) 1 else 2).
+        headOption.map(o => (s.attr("name"), if (o.hasAttr("value")) o.attr("value") else o.text))
     }
 
   /** Submit the given `form` represented as a Jsoup `Element`, using the given `params`.

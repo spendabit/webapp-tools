@@ -1,7 +1,6 @@
 package co.spendabit.test.scalatra
 
-import co.spendabit.webapp.forms.controls.SelectField
-import co.spendabit.webapp.forms.v2.WebForm1
+import org.jsoup.Jsoup
 import org.scalatest.FunSuite
 import org.scalatra.ScalatraServlet
 
@@ -77,6 +76,27 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
         assert(body.trim == "")
       }
     }
+  }
+
+  test("the text content of the default option element is used when element has no " +
+       "'value' attribute") {
+    val defaults = defaultValuesForForm(Jsoup.parse(
+      "<form><select name=\"position\"><option selected=\"selected\">1</option></select></form>"))
+    val p = defaults.find(_._1 == "position")
+    assert(p.isDefined)
+    assert(p.get._2 == "1")
+  }
+
+  test("the value for the first option element is used if no option elements have " +
+       "'selected' attribute") {
+    val defaults = defaultValuesForForm(Jsoup.parse(
+      """<form><select name="roast">
+        |  <option value="light">Light Roast</option>
+        |  <option value="dark" >Dark Roast</option>
+        |</select></form>""".stripMargin))
+    val p = defaults.find(_._1 == "roast")
+    assert(p.isDefined)
+    assert(p.get._2 == "light")
   }
 
   test("AdvancedWebBrowsing.submitForm ensures the provided form actually has a 'submit' button") {
