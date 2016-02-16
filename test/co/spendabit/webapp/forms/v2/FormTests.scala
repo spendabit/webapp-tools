@@ -67,13 +67,14 @@ class FormTests extends FunSuite {
     }
 
     val markup = form.html(Map("desire" -> Seq("other-planet")))
-    val otherPlanet = (markup \\ "input").find(n => getAttr(n, "value") == Some("other-planet")).get
+    val otherPlanet = (markup \\ "input").
+      find(n => getAttr(n, "value").contains("other-planet")).get
     val checked = getAttr(otherPlanet, "checked")
-    assert(checked == Some("checked"))
+    assert(checked.contains("checked"))
 
     // Make sure the other checkboxes weren't checked...
     Seq("moon", "earth").foreach { opt =>
-      val box = (markup \\ "input").find(n => getAttr(n, "value") == Some(opt)).get
+      val box = (markup \\ "input").find(n => getAttr(n, "value").contains(opt)).get
       assert(getAttr(box, "checked").isEmpty)
     }
   }
@@ -128,9 +129,9 @@ class FormTests extends FunSuite {
     }
 
     val rendered = form.html(params = Map("fruit" -> Seq("orange")))
-    val opt = (rendered \\ "option").filter(o => getAttr(o, "value") == Some("orange")).head
+    val opt = (rendered \\ "option").filter(o => getAttr(o, "value").contains("orange")).head
     assert(getAttr(opt, "selected").isDefined)
-    assert(getAttr(opt, "selected") == Some("selected"))
+    assert(getAttr(opt, "selected").contains("selected"))
   }
 
   test("basic validation") {
@@ -193,7 +194,7 @@ class FormTests extends FunSuite {
       def fields = FileUploadInput(label = "Upload a file", name = "f")
     }
     val f2 = formWithFileInput.html.asInstanceOf[xml.Elem]
-    assert(getAttr(f2, "enctype") == Some("multipart/form-data"))
+    assert(getAttr(f2, "enctype").contains("multipart/form-data"))
 
     // And ensure the proper 'enctype' even when rendering using a custom renderer...
     val renderer = new bootstrap.HorizontalForm
@@ -202,7 +203,7 @@ class FormTests extends FunSuite {
       assert(enc != "multipart/form-data")
     }
     val renderedWith = formWithFileInput.html(renderer).asInstanceOf[xml.Elem]
-    assert(getAttr(renderedWith, "enctype") == Some("multipart/form-data"))
+    assert(getAttr(renderedWith, "enctype").contains("multipart/form-data"))
   }
 
   test("rendering using `FormRenderer` instance") {
@@ -215,12 +216,12 @@ class FormTests extends FunSuite {
 
     val formHTML = form.html(renderer).head
     assert(getAttr(formHTML, "action").isDefined)
-    assert(getAttr(formHTML, "method").map(_.toLowerCase) == Some("post"))
+    assert(getAttr(formHTML, "method").map(_.toLowerCase).contains("post"))
     assert((formHTML \\ "button").length > 0)
 
     val formWithValues = form.html(renderer, Map("website" -> Seq("www.sing.com")))
     val websiteInput = getInput(formWithValues, "website")
-    assert(getAttr(websiteInput, "value") == Some("www.sing.com"))
+    assert(getAttr(websiteInput, "value").contains("www.sing.com"))
   }
 
 //  implicit def toMapOfStringToSeqString(m: Map[String, String]): Map[String, Seq[String]] =
@@ -248,7 +249,7 @@ class FormTests extends FunSuite {
 
   private def containsInputWithName(html: xml.NodeSeq, name: String,
                                     nodeType: String = "input"): Boolean =
-    (html \\ nodeType).filter(n => getAttr(n, "name") == Some(name)).length == 1
+    (html \\ nodeType).filter(n => getAttr(n, "name").contains(name)).length == 1
 
   private def getInput(html: xml.NodeSeq, name: String): xml.Node =
     getControl(html, name, Seq("input"))
@@ -256,11 +257,11 @@ class FormTests extends FunSuite {
   private def getControl(html: xml.NodeSeq, name: String,
                          nodeTypes: Seq[String] = Seq("input", "textarea")): xml.Node = {
 
-    val allControls = nodeTypes.map(t => html \\ t).flatten
-    allControls.find(n => getAttr(n, "name") == Some(name)).
+    val allControls = nodeTypes.flatMap(t => html \\ t)
+    allControls.find(n => getAttr(n, "name").contains(name)).
       getOrElse(fail(s"No form-control with name '$name' found"))
   }
 
   private def getAttr(n: xml.Node, attr: String): Option[String] =
-    n.attribute(attr).map(_.headOption).flatten.map(_.toString())
+    n.attribute(attr).flatMap(_.headOption).map(_.toString())
 }
