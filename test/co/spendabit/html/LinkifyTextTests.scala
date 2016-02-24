@@ -14,9 +14,32 @@ class LinkifyTextTests extends FunSuite {
         |
         |Come visit www.barnyard.com to learn more.
       """.stripMargin
-    val linkified = co.spendabit.html.linkifyURLs(text)
+    val linkified = linkifyURLs(text)
 
     assert(countLinks(linkified) == 3)
+  }
+
+  test("it should still find a link that's on its own line") {
+    val text =
+      """
+        |Here it is:
+        |http://myline.com/
+      """.stripMargin
+    assert(countLinks(linkifyURLs(text)) == 1)
+  }
+
+  test("it should retain all lines") {
+    val text =
+      """
+        |This is line 1...
+        |...and we have a 2nd line.
+        |Plus one more.
+      """.stripMargin
+    val processed = linkifyURLs(text).toString()
+
+    assert(processed.contains("This is line 1"))
+    assert(processed.contains("and we have a 2nd line"))
+    assert(processed.contains("Plus one more"))
   }
 
   private def countLinks(html: xml.NodeSeq) =
