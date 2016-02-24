@@ -1,7 +1,7 @@
 package co.spendabit.webapp.forms.controls
 
 /** A control that accepts a value as free-form text (e.g., <input type="text"/>, <textarea/>),
-  * though it may validate that the entered text matches a specififc format (such as that of an
+  * though it may validate that the entered text matches a specific format (such as that of an
   * integer, or URL).
   */
 abstract class TextEntryControl[T](override val label: String, val name: String)
