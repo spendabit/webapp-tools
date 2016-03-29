@@ -24,11 +24,11 @@ package object bots {
     }
 
   def looksLikeBotUserAgentString(ua: String): Option[Boolean] =
-    if (botSignatures.exists(ua.contains)) {
-      log.debug("Found signature for known bot in User-Agent string")
+    if (botSignatures.exists(ua.contains) || ua.contains("bot/")) {
+      log.debug(s"User-Agent string appears to be from a bot: $ua")
       Some(true)
     } else if (ordinaryBrowserSignatures.exists(ua.contains)) {
-      log.debug("Found signature for known web-browser in User-Agent string")
+      log.debug(s"Found signature for known web-browser in User-Agent string: $ua")
       Some(false)
     } else {
       None
