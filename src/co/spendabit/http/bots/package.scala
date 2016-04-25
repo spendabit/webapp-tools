@@ -24,7 +24,8 @@ package object bots {
     }
 
   def looksLikeBotUserAgentString(ua: String): Option[Boolean] =
-    if (botSignatures.exists(ua.contains) || ua.contains("bot/")) {
+    if (botSignatures.exists(ua.contains) || ua.contains("bot/") ||
+        commonBotUserAgentStrings.contains(ua)) {
       log.debug(s"User-Agent string appears to be from a bot: $ua")
       Some(true)
     } else if (ordinaryBrowserSignatures.exists(ua.contains)) {
@@ -36,6 +37,12 @@ package object bots {
 
   private val ordinaryBrowserSignatures = Seq(
     "BlackBerry", "Chrome", "Firefox", "MSIE", "Opera", "Presto", "Safari", "Trident")
+
+  /** These are User-Agent strings that, although they don't self-identify as bots, they are much
+    * more commonly seen in use by bots than be real users.
+    */
+  private val commonBotUserAgentStrings = Seq(
+    "Mozilla/4.0 (compatible; MSIE8.0; Windows NT 6.0) .NET CLR 2.0.50727)")
 
   private val botSignatures = Seq(
     "008", "ABACHOBot", "Accoona-AI-Agent", "AddSugarSpiderBot", "AnyApexBot",
