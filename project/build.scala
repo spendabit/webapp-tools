@@ -15,7 +15,7 @@ object build extends Build {
       name := "Webapp Tools",
       version := libVersion,
 
-      scalaVersion := "2.11.7",
+      scalaVersion := "2.11.8",
       scalacOptions ++= Seq("-feature", "-language:implicitConversions"),
 
       publishMavenStyle := true,
@@ -56,10 +56,10 @@ object build extends Build {
       libraryDependencies ++= Seq(
         "javax.mail" % "mail" % "1.4.7",
         "commons-validator" % "commons-validator" % "1.4.1",
-        "org.jsoup" % "jsoup" % "1.8.2",
+        "org.jsoup" % "jsoup" % "1.9.1",
         "org.scalatest" %% "scalatest" % "2.2.4",
         "org.scalatra" %% "scalatra-scalatest" % "2.3.0",
-        "org.scalatra" %% "scalatra" % "2.3.0" % "test"
+        "org.scalatra" %% "scalatra" % "2.3.0" % Test
       ),
 
       scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src"),
