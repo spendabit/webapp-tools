@@ -54,8 +54,10 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       if (action.toLowerCase.startsWith("http://") || action.toLowerCase.startsWith("https://"))
         fail("Forms with URL in 'action' attribute not presently supported")
       else if (action.startsWith("./"))
-        context.map(p => new java.io.File(p).getParent + "/" + action.stripPrefix("./")).
-          getOrElse(fail("Cannot submit form with 'action' having relative path when no " +
+        context.map { p =>
+          val prefix = if (p.endsWith("/")) p else new java.io.File(p).getParent + "/"
+          prefix + action.stripPrefix("./")
+        }.getOrElse(fail("Cannot submit form with 'action' having relative path when no " +
                          "'context' was provided"))
       else
         action

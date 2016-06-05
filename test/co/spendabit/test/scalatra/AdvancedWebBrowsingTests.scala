@@ -115,10 +115,17 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
   }
 
   test("'submitForm' properly handles forms that use relative path 'action' attribute") {
-    get("/site-section/the-form") {
-      submitForm(getForm("form"), context = Some("/site-section/the-form"), Seq()) {
-        assert(status >= 200 && status < 300)
-        assert(body.contains("Submitted!"))
+
+    Seq("/site-section/index", "/site-section/").foreach { path =>
+      get(path) {
+        if (path.endsWith("/"))
+          info("should handle the case where the current URI ends with a slash")
+        else
+          info("should handle the case where the current URI does not end with a slash")
+        submitForm(getForm("form"), context = Some(path), Seq()) {
+          assert(status >= 200 && status < 300)
+          assert(body.contains("Submitted!"))
+        }
       }
     }
   }
@@ -203,11 +210,17 @@ class TestServlet extends ScalatraServlet {
       </form>)
   }
 
-  get("/site-section/the-form") {
-    page(
-      <form method="post" action="./submit-to">
-        <button type="submit">Submit</button>
-      </form>)
+  private val formWithRelativeAction =
+    <form method="post" action="./submit-to">
+      <button type="submit">Submit</button>
+    </form>
+
+  get("/site-section/") {
+    page(formWithRelativeAction)
+  }
+
+  get("/site-section/index") {
+    page(formWithRelativeAction)
   }
 
   post("/site-section/submit-to") {
