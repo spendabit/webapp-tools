@@ -58,8 +58,8 @@ object build extends Build {
         "commons-validator" % "commons-validator" % "1.4.1",
         "org.jsoup" % "jsoup" % "1.9.1",
         "org.scalatest" %% "scalatest" % "2.2.4",
-        "org.scalatra" %% "scalatra-scalatest" % "2.3.0",
-        "org.scalatra" %% "scalatra" % "2.3.0" % Test
+        "org.scalatra" %% "scalatra-scalatest" % "2.3.1",
+        "org.scalatra" %% "scalatra" % "2.3.1" % Test
       ),
 
       scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src"),
