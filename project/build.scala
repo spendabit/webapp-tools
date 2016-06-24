@@ -4,7 +4,7 @@ import xerial.sbt.Sonatype.SonatypeKeys.sonatypeProfileName
 
 object build extends Build {
 
-  val libVersion = "0.0.56"
+  val libVersion = "0.0.57"
 
   lazy val project = Project (
     "webapp-tools",
@@ -59,7 +59,8 @@ object build extends Build {
         "org.jsoup" % "jsoup" % "1.9.1",
         "org.scalatest" %% "scalatest" % "2.2.4",
         "org.scalatra" %% "scalatra-scalatest" % "2.3.1",
-        "org.scalatra" %% "scalatra" % "2.3.1" % Test
+        "org.scalatra" %% "scalatra" % "2.3.1",
+        "commons-fileupload" % "commons-fileupload" % "1.3.2"
       ),
 
       scalaSource in Compile <<= (baseDirectory in Compile)(_ / "src"),
