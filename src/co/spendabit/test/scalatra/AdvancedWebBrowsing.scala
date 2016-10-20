@@ -20,11 +20,13 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     * such form is found.
     */
   protected def getForm(selector: String): Element = {
-    selectElems(selector).headOption match {
-      case None => fail(s"Found no form matching following selector: $selector")
-      case Some(f) =>
+    selectElems(selector).toSeq match {
+      case Seq() => fail(s"Found no form matching following selector: $selector")
+      case Seq(f) =>
         if (f.nodeName() != "form") fail("The selected element is not a 'form' element")
         f
+      case forms if forms.length > 1 =>
+        fail(s"Multiple forms found matching following selector: $selector")
     }
   }
 
