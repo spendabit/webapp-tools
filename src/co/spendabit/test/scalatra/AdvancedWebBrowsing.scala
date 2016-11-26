@@ -41,13 +41,14 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     assert(form.select("input[type=submit], button[type=submit]").length > 0,
       "The provided form has no submit buttons")
 
+    val availableFields = form.select(s"input, textarea, select").map(_.attr("name"))
     params.foreach { case (name, _) =>
       // TODO: For radio-button fields, ensure specified value is one of the provided options.
       // TODO: For select fields, ensure specified value is one of the provided options.
       // TODO: For checkbox fields, ensure the specified value is "on" (or null?).
-      assert(
-        form.select(s"input[name=$name], textarea[name=$name], select[name=$name]").length > 0,
-        s"Form must have field named '$name'")
+      assert(availableFields.contains(name),
+        s"Form must have field named '$name' but only following fields found: " +
+          availableFields.mkString(", "))
     }
 
     // TODO: Support case where 'action' contains a full URL or absolute path.
