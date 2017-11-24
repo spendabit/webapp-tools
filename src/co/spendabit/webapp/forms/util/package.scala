@@ -64,8 +64,14 @@ package object util {
         n
     }
 
+  private def withAttr(e: xml.Elem, key: String, value: Option[String]): xml.Elem =
+    value match {
+      case None => e
+      case Some(v) => withAttr(e, key, v)
+    }
+
   // XXX: Remove any existing attributes for `key`?
-  def withAttr(e: xml.Elem, key: String, value: String) =
+  def withAttr(e: xml.Elem, key: String, value: String): xml.Elem =
     e.copy(attributes = e.attributes.append(new UnprefixedAttribute(key, value, xml.Null)))
 
   def withAttrs(e: xml.Elem, attrs: (String, String)*) =
