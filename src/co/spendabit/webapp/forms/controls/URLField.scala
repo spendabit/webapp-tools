@@ -3,8 +3,8 @@ package co.spendabit.webapp.forms.controls
 import java.net.{URL, MalformedURLException}
 
 case class URLField(override val label: String = "URL", override val name: String,
-                    requireProtocol: Boolean = false)
-        extends GenericInput[URL](label, name) {
+                    placeholder: String = "", requireProtocol: Boolean = false)
+        extends GenericInput[URL](label, name, placeholder) {
 
   /** If `requireProtocol` is false, then we use a plain-old 'text' input, so web-browsers will
     * allow users to enter values like "www.my-site.com".

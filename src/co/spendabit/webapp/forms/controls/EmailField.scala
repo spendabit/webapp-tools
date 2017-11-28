@@ -3,8 +3,9 @@ package co.spendabit.webapp.forms.controls
 import javax.mail.internet.InternetAddress
 import org.apache.commons.validator.routines.EmailValidator
 
-case class EmailField(override val label: String, override val name: String)
-        extends GenericInput[InternetAddress](label, name) {
+case class EmailField(override val label: String, override val name: String,
+                      placeholder: String = "")
+        extends GenericInput[InternetAddress](label, name, placeholder) {
 
   def inputType = "email"
 

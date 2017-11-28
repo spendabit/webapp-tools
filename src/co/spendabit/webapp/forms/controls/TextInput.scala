@@ -1,7 +1,8 @@
 package co.spendabit.webapp.forms.controls
 
-case class TextInput(override val label: String, override val name: String)
-        extends GenericInput[String](label, name) {
+case class TextInput(override val label: String, override val name: String,
+                     placeholder: String = "")
+        extends GenericInput[String](label, name, placeholder) {
 
   def inputType = "text"
 

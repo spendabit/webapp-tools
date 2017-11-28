@@ -32,6 +32,24 @@ class FormTests extends FunSuite {
     assert((markup \\ "label").length > 0)
   }
 
+  test("support for 'placeholder' text") {
+
+    val f = new WebForm2[InternetAddress, String]
+      with PostWebForm[(InternetAddress, String)] {
+      def fields =
+        (EmailField(label = "Email address", name = "e", placeholder = "john@example.org"),
+          TextInput(label = "Name", name = "n", placeholder = "John Smith"))
+    }
+    val markup = f.html
+
+    (markup \\ "input").foreach { i =>
+      if (getAttr(i, "name").get == "e")
+        assert(getAttr(i, "placeholder").contains("john@example.org"))
+      else
+        assert(getAttr(i, "placeholder").contains("John Smith"))
+    }
+  }
+
   test("rendering with entered values") {
 
     val f = new WebForm3[InternetAddress, String, String] {
