@@ -24,5 +24,5 @@ class URLFieldTests extends FunSuite {
   }
 
   def getField(requireProtocol: Boolean) =
-    new URLField(label = "Your website", name = "website", requireProtocol)
+    new URLField(label = "Your website", name = "website", requireProtocol = requireProtocol)
 }

@@ -1,7 +1,7 @@
 package co.spendabit.webapp.forms.controls
 
 case class PasswordInput(override val label: String, override val name: String,
-                         minLength: Int, placeholder: String)
+                         minLength: Int, placeholder: String = "")
         extends GenericInput[String](label, name, placeholder) {
 
   def inputType = "password"
