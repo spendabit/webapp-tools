@@ -52,7 +52,7 @@ class HorizontalForm extends FormRenderer {
 
   protected def submitButtonLabel: String = "Submit"
 
-  private def rightColumnWidth: Int = {
+  private val rightColumnWidth: Int = {
     if (leftColumnWidth < 1 || leftColumnWidth > 11)
       throw new Exception("Invalid value for `leftColumnWidth`")
     12 - leftColumnWidth
