@@ -19,9 +19,9 @@ class FormTests extends FunSuite {
     val f = new WebForm3[InternetAddress, String, String]
               with PostWebForm[(InternetAddress, String, String)] {
       def fields =
-        (new EmailField(label = "Email address", name = "theEmail"),
-         new PasswordInput(label = "Password", name = "pass", minLength = 7),
-         new Textarea(label = "Your story", name = "story"))
+        (EmailField(label = "Email address", name = "theEmail"),
+         PasswordInput(label = "Password", name = "pass", minLength = 7),
+         Textarea(label = "Your story", name = "story"))
     }
     val markup = f.html
 
@@ -55,9 +55,9 @@ class FormTests extends FunSuite {
     val f = new WebForm3[InternetAddress, String, String] {
       def action = "./"
       def method = POST
-      def fields = (new EmailField(label = "Email address", name = "theEmail"),
-                    new TextInput(label = "Your name", name = "nombre"),
-                    new Textarea(label = "Your story", name = "story"))
+      def fields = (EmailField(label = "Email address", name = "theEmail"),
+                    TextInput(label = "Your name", name = "nombre"),
+                    Textarea(label = "Your story", name = "story"))
     }
 
     val enteredValues = Map("theEmail" -> "not-valid", "nombre" -> "José", "story" -> "a bold tale")
@@ -72,7 +72,7 @@ class FormTests extends FunSuite {
 
     val form = new PostWebForm[String] with WebForm1[String] with CustomHtml[String] {
 
-      def fields = new TextInput(name = "desire", label = "Your desire?")
+      def fields = TextInput(name = "desire", label = "Your desire?")
 
       def customHtml =
         <form method="post" action="/here">
@@ -155,8 +155,8 @@ class FormTests extends FunSuite {
   test("basic validation") {
 
     val f = new WebForm2[String, URL] with PostWebForm[(String, URL)] {
-      def fields = (new TextInput(label = "Your name", name = "n"),
-                    new URLField(label = "Your website", name = "website"))
+      def fields = (TextInput(label = "Your name", name = "n"),
+                    URLField(label = "Your website", name = "website"))
     }
 
     assert(f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("https://test.net"))).isValid)
@@ -165,9 +165,9 @@ class FormTests extends FunSuite {
 
   test("cross-field validations") {
     val form = new PostWebForm[(String, String)] with WebForm2[String, String] {
-      protected def fields = (new PasswordInput(name = "pass1", label = "Password",
+      protected def fields = (PasswordInput(name = "pass1", label = "Password",
                                 minLength = 3),
-                              new PasswordInput(name = "pass2", label = "Confirm Password",
+                              PasswordInput(name = "pass2", label = "Confirm Password",
                                 minLength = 3))
       override protected def crossFieldValidations = Seq(
         { case (p1, p2) => if (p1 != p2) Some("Passwords must match.") else None }
@@ -228,8 +228,8 @@ class FormTests extends FunSuite {
 
     val renderer = new bootstrap.HorizontalForm
     val form = new PostWebForm[(String, URL)] with WebForm2[String, URL] {
-      def fields = (new TextInput(name = "name", label = "Name"),
-                    new URLField(name = "website", label = "Website"))
+      def fields = (TextInput(name = "name", label = "Name"),
+                    URLField(name = "website", label = "Website"))
     }
 
     val formHTML = form.html(renderer).head
@@ -248,10 +248,10 @@ class FormTests extends FunSuite {
   test("code for WebFormX classes (e.g. `WebForm1`, `WebForm2`, etc) is properly generated") {
     val form = new PostWebForm[(String, URL, InternetAddress, String)]
             with WebForm4[String, URL, InternetAddress, String] {
-      def fields = (new Textarea(name = "f1", label = "Field 1"),
-                    new URLField(name = "f2", label = "Field 2"),
-                    new EmailField(name = "f2", label = "Field 3"),
-                    new TextInput(name = "f2", label = "Field 4"))
+      def fields = (Textarea(name = "f1", label = "Field 1"),
+                    URLField(name = "f2", label = "Field 2"),
+                    EmailField(name = "f2", label = "Field 3"),
+                    TextInput(name = "f2", label = "Field 4"))
     }
     form.html
   }
