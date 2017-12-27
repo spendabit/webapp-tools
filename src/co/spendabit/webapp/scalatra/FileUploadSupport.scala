@@ -7,7 +7,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.scalatra._
 import org.scalatra.servlet.ServletBase
-import org.scalatra.util.MultiMap
 
 /** An alternative mechanism (to Scalatra's built-in mechanism) for Scalatra-based servlets to
   * handle file-uploads, leveraging the Apache 'commons-fileupload' package. The primary motivation
@@ -40,7 +39,7 @@ trait FileUploadSupport extends ServletBase {
       import scala.collection.JavaConversions._
       fileItems = uploadProcessor.parseRequest(req)
 
-      val mp: MultiParams = MultiMap(fileItems.map(i => (i.getFieldName, Seq(i.getString))).toMap)
+      val mp: MultiParams = fileItems.map(i => (i.getFieldName, Seq(i.getString))).toMap
       req.setAttribute("MultiParamsRead", new {})
       req.setAttribute(MultiParamsKey, mp)
     }
