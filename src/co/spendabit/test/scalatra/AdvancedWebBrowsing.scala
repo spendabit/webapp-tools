@@ -20,7 +20,7 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     * such form is found.
     */
   protected def getForm(selector: String): Element = {
-    selectElems(selector).toSeq match {
+    selectElems(selector) match {
       case Seq() => fail(s"Found no form matching following selector: $selector")
       case Seq(f) =>
         if (f.nodeName() != "form") fail("The selected element is not a 'form' element")
@@ -79,7 +79,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
 
   // TODO: Add support for default values in other control/input types.
   protected def defaultValuesForForm(form: Element): Seq[(String, String)] =
-    form.select("input[value]").filter(i => Seq("text", "hidden").contains(i.attr("type"))).
+    form.select("input[value]").
+      filter { i: Element => Seq("text", "hidden").contains(i.attr("type")) }.
       map(i => (i.attr("name"), i.attr("value"))) ++
     form.select("textarea").map(ta => (ta.attr("name"), ta.text)) ++
     form.select("select").flatMap { s =>

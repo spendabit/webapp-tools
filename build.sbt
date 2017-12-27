@@ -14,12 +14,12 @@ resolvers ++= Seq(Classpaths.typesafeReleases)
 
 libraryDependencies ++= Seq(
   "javax.mail" % "mail" % "1.4.7",
-  "commons-validator" % "commons-validator" % "1.4.1",
-  "org.jsoup" % "jsoup" % "1.9.2",
-  "org.scalatest" %% "scalatest" % "2.2.4",
+  "commons-validator" % "commons-validator" % "1.6",
+  "org.jsoup" % "jsoup" % "1.11.2",
+  "org.scalatest" %% "scalatest" % "3.0.3",
   "org.scalatra" %% "scalatra-scalatest" % "2.6.2",
   "org.scalatra" %% "scalatra" % "2.6.2",
-  "commons-fileupload" % "commons-fileupload" % "1.3.2"
+  "commons-fileupload" % "commons-fileupload" % "1.3.3"
 )
 
 publishMavenStyle := true
