@@ -52,7 +52,7 @@ class HorizontalForm extends FormRenderer {
 
   protected def submitButtonLabel: String = "Submit"
 
-  private val rightColumnWidth: Int = {
+  private lazy val rightColumnWidth: Int = {
     if (leftColumnWidth < 1 || leftColumnWidth > 11)
       throw new IllegalStateException("`leftColumnWidth` must be between 1 and 11 (inclusive), " +
         s"but it is $leftColumnWidth")
