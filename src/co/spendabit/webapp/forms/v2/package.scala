@@ -25,7 +25,7 @@ package object v2 {
   trait WebForm1[A] extends v2.BaseWebForm[A] {
     protected def fields: LabeledControl[A]
     protected def f1 = fields
-    protected val fieldsSeq = Seq(f1)
+    protected def fieldsSeq = Seq(f1)
     protected def seqToTuple(s: Seq[_]) = s.head.asInstanceOf[A]
     protected def widgetsHTML(values: Option[A]): Seq[xml.NodeSeq] = {
       val vs = values.map(vs => Some(vs)).getOrElse(None)

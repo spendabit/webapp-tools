@@ -245,7 +245,25 @@ class FormTests extends FunSuite {
 //  implicit def toMapOfStringToSeqString(m: Map[String, String]): Map[String, Seq[String]] =
 //    m.map(x => (x._1, Seq(x._2)))
 
-  test("code for WebFormX classes (e.g. `WebForm1`, `WebForm2`, etc) is properly generated") {
+  // `WebForm1` is a bit of an edge-case, and does not use the same "macro" (code generation)
+  // as `WebForm2` and on up.
+  test("`WebForm1` works properly") {
+
+    val f = new PostWebForm[String] with WebForm1[String] {
+      val fields = TextInput(label = "Temperature", name = "temp")
+    }
+
+    // Previously, an issue with the way we defined `WebForm1` (using a val in place of def) led
+    // to a `NullPointerException`.
+    try f.html
+    catch { case e: Throwable =>
+      fail(s"Rendering the `html` should not lead to exception (${e.getClass.getName})")
+    }
+
+    assert(getInput(f.html, "temp") != null)
+  }
+
+  test("code for WebFormX classes (e.g. `WebForm2`, `WebForm3`, etc) is properly generated") {
     val form = new PostWebForm[(String, URL, InternetAddress, String)]
             with WebForm4[String, URL, InternetAddress, String] {
       def fields = (Textarea(name = "f1", label = "Field 1"),
