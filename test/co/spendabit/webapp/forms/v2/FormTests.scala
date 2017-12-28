@@ -3,11 +3,12 @@ package co.spendabit.webapp.forms.v2
 import java.net.URL
 import javax.mail.internet.InternetAddress
 
+import co.spendabit.XMLHelpers
 import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.ui.bootstrap
 import org.scalatest.FunSuite
 
-class FormTests extends FunSuite {
+class FormTests extends FunSuite with XMLHelpers {
 
   trait PostWebForm[T] extends BaseWebForm[T] {
     def method = POST
@@ -297,7 +298,4 @@ class FormTests extends FunSuite {
     allControls.find(n => getAttr(n, "name").contains(name)).
       getOrElse(fail(s"No form-control with name '$name' found"))
   }
-
-  private def getAttr(n: xml.Node, attr: String): Option[String] =
-    n.attribute(attr).flatMap(_.headOption).map(_.toString())
 }
