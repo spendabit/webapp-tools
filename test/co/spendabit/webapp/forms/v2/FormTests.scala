@@ -35,11 +35,12 @@ class FormTests extends FunSuite with XMLHelpers {
 
   test("support for 'placeholder' text") {
 
-    val f = new WebForm2[InternetAddress, String]
-      with PostWebForm[(InternetAddress, String)] {
+    val f = new WebForm3[InternetAddress, String, String]
+      with PostWebForm[(InternetAddress, String, String)] {
       def fields =
         (EmailField(label = "Email address", name = "e", placeholder = "john@example.org"),
-          TextInput(label = "Name", name = "n", placeholder = "John Smith"))
+          TextInput(label = "Name", name = "n", placeholder = "John Smith"),
+          Textarea(label = "Comments", name = "comments", placeholder = "Talk to us."))
     }
     val markup = f.html
 
@@ -49,6 +50,7 @@ class FormTests extends FunSuite with XMLHelpers {
       else
         assert(getAttr(i, "placeholder").contains("John Smith"))
     }
+    assert(getAttr((markup \\ "textarea").head, "placeholder").contains("Talk to us."))
   }
 
   test("rendering with entered values") {
