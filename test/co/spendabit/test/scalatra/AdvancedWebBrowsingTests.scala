@@ -138,7 +138,14 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
-  test("getFollowingRedirects properly handles redirect locations with query-string") {
+  test("'redirectLocation' properly constructs URI") {
+    get("/redirect-me") {
+      assert(isRedirectResponse)
+      assert(redirectLocation == "/redirected")
+    }
+  }
+
+  test("'getFollowingRedirects' properly handles redirect locations with query-string") {
     getFollowingRedirects("/a") {
       assert(body == "with is c")
     }
@@ -198,8 +205,7 @@ class TestServlet extends ScalatraServlet {
   }
 
   post("/echo-params") {
-    contentType = "text/plain"
-    params.map(p => p._1 + ": " + p._2).mkString("\n")
+    plainText(params.map(p => p._1 + ": " + p._2).mkString("\n"))
   }
 
   get("/form-with-no-submit-button") {
@@ -208,6 +214,14 @@ class TestServlet extends ScalatraServlet {
         <input type="text" name="theField" />
         <button class="useless">Useless Button!</button>
       </form>)
+  }
+
+  get("/redirect-me") {
+    redirect("/redirected")
+  }
+
+  get("/redirected") {
+    plainText("Welcome!")
   }
 
   private val formWithRelativeAction =

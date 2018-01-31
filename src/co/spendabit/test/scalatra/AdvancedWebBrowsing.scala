@@ -132,7 +132,9 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       val newURL = new URL(location)
       if (newURL.getHost != "localhost")
         throw new Exception("Location header was not pointed at localhost!")
-      newURL.getPath + "?" + newURL.getQuery // XXX: Fragment?
+      val q = if (newURL.getQuery == null) "" else "?" + newURL.getQuery
+      // XXX: Should we include the fragment?
+      newURL.getPath + q
     }
   }
 }
