@@ -17,8 +17,8 @@ libraryDependencies ++= Seq(
   "commons-validator" % "commons-validator" % "1.6",
   "org.jsoup" % "jsoup" % "1.11.2",
   "org.scalatest" %% "scalatest" % "3.0.3",
-  "org.scalatra" %% "scalatra-scalatest" % "2.6.2",
-  "org.scalatra" %% "scalatra" % "2.6.2",
+  "org.scalatra" %% "scalatra-scalatest" % "2.6.3",
+  "org.scalatra" %% "scalatra" % "2.6.3",
   "commons-fileupload" % "commons-fileupload" % "1.3.3"
 )
 
