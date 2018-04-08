@@ -14,14 +14,25 @@ case class URLField(override val label: String = "URL", override val name: Strin
   def valueAsString(value: URL): String = value.toString
 
   def validate(s: String) = {
+
     val withProtocol =
       if (requireProtocol || s.matches("https?:.*"))
         s
       else
         s"http://$s"
+
     try {
+
       val url = new URL(withProtocol)
-      if (url.getHost.contains('.') && url.getHost.split('.').last.length > 1)
+      val hasTLD = url.getHost.contains('.') && url.getHost.split('.').last.length > 1
+      val hasInvalidCharsInHostname = {
+        val h = if (s == withProtocol) url.getHost else s.split('/').head
+        h.exists(c => !c.isLetterOrDigit && c != '-' && c != '.')
+      }
+
+      val hasSpuriousDot = url.getHost.split('.').contains("")
+
+      if (hasTLD && !hasInvalidCharsInHostname && !hasSpuriousDot)
         Right(url)
       else
         throw new MalformedURLException

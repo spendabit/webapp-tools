@@ -23,6 +23,23 @@ class URLFieldTests extends FunSuite {
     assert(f.validate("my-hostname.us").isRight)
   }
 
-  def getField(requireProtocol: Boolean) =
-    new URLField(label = "Your website", name = "website", requireProtocol = requireProtocol)
+  test("URL with a path is accepted") {
+    assert(validates("http://welcome.net/path/to/a_file.html"))
+  }
+
+  test("an email address is not accepted") {
+    assert(!validates("rosanne@hotmail.com"))
+    assert(!validates("jpopper@go-big.co.uk/something"))
+  }
+
+  test("does not allow two dots in a row") {
+    assert(!validates("https://bogus..com"))
+    assert(!validates("http://.whoa.net"))
+  }
+
+  private def validates(value: String, requireProtocol: Boolean = false) =
+    getField(requireProtocol).validate(value).isRight
+
+  private def getField(requireProtocol: Boolean) =
+    URLField(label = "Your website", name = "website", requireProtocol = requireProtocol)
 }
