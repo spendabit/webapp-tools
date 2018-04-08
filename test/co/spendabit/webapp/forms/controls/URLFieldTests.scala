@@ -17,10 +17,9 @@ class URLFieldTests extends FunSuite {
   }
 
   test("a hostname with a TLD is required") {
-    val f = getField(requireProtocol = false)
-    assert(f.validate("my-hostname").isLeft)
-    assert(f.validate("my-hostname.a").isLeft)
-    assert(f.validate("my-hostname.us").isRight)
+    assert(!validates("my-hostname"))
+    assert(!validates("my-hostname.a"))
+    assert(validates("my-hostname.us"))
   }
 
   test("URL with a path is accepted") {
