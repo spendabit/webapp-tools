@@ -1,12 +1,13 @@
 package co.spendabit.webapp.forms.v2
 
+import co.spendabit.webapp.MultipartFormHandling
 import javax.servlet.http.HttpServletRequest
-
-import co.spendabit.webapp.forms.controls.LabeledControl
+import co.spendabit.webapp.forms.controls.Field
 import co.spendabit.webapp.forms.ui.FormRenderer
 import co.spendabit.webapp.forms.util.withAttrs
+import org.apache.commons.fileupload.FileItem
 
-abstract class BaseWebForm[T] {
+abstract class BaseWebForm[T] extends MultipartFormHandling {
 
   sealed trait Method { def value: String }
   case object GET  extends Method { def value = "get" }
@@ -16,7 +17,12 @@ abstract class BaseWebForm[T] {
 
   protected def action: String
 
-  protected def fieldsSeq: Seq[LabeledControl[_]]
+  /** Override this, providing an instance of `UploadConfig`, for a form that has
+    * file-upload (<input type="file" />) fields.
+    */
+  protected def uploadConfig: Option[UploadConfig] = None
+
+  protected def fieldsSeq: Seq[Field[_]]
 
   protected def seqToTuple(s: Seq[_]): T
 
@@ -85,13 +91,20 @@ abstract class BaseWebForm[T] {
 
   def validate(request: HttpServletRequest): ValidationResult[T] = {
     import scala.collection.JavaConverters._
-    val params = request.getParameterMap.asScala.map(p => (p._1, p._2.toSeq)).toMap
-    validate(params)
+
+    val (params, files) =
+      if (isMultipartRequest(request))
+        decodeMultipartData(request)
+      else
+        (request.getParameterMap.asScala.map(p => (p._1, p._2.toSeq)).toMap, Seq())
+
+    validate(params, files)
   }
 
-  def validate(params: Map[String, Seq[String]]): ValidationResult[T] = {
+  def validate(params: Map[String, Seq[String]],
+               fileItems: Seq[FileItem] = Seq()): ValidationResult[T] = {
 
-    val validationResults = fieldsSeq.map(f => f.validate(params))
+    val validationResults = fieldsSeq.map(f => f.validate(params, fileItems))
 
     if (validationResults.count(_.isRight) == validationResults.length) {
       val tupledValues = seqToTuple(validationResults.map(_.right.get))
@@ -102,6 +115,20 @@ abstract class BaseWebForm[T] {
     } else {
       Invalid(validationResults.map(_.left.toSeq).flatten)
     }
+  }
+
+  private def decodeMultipartData(request: HttpServletRequest): (Params, Seq[FileItem]) = {
+
+    val items = uploadConfig.map { conf =>
+      readMultipartFormData(request, conf)
+    }.getOrElse {
+      log.error(s"Received multipart (${request.getContentType}) request, but `uploadConfig` " +
+        s"is not set; no form values will be decoded")
+      Seq()
+    }
+
+    (items.filter(_.isFormField).map { p => p.getFieldName -> Seq(p.getString)}.toMap,
+      items.filter(!_.isFormField))
   }
 
   /** If the form includes an <input type="file" .../> node, we need to use multipart/form-data.
@@ -117,4 +144,7 @@ abstract class BaseWebForm[T] {
     else "application/x-www-form-urlencoded"
   }
 
+  type Params = Map[String, Seq[String]]
+
+  private lazy val log = org.log4s.getLogger
 }

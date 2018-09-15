@@ -3,7 +3,7 @@ package co.spendabit.webapp.forms.controls
 import co.spendabit.webapp.forms.util.withAttr
 
 case class Checkbox(override val label: String, name: String)
-        extends LabeledControl[Boolean](label) {
+        extends NonFileField[Boolean](label) {
 
   override def widgetHTML(value: Option[Boolean] = None): xml.NodeSeq = {
     val cb = <input type="checkbox" name={ name } />

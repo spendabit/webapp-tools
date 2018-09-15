@@ -3,17 +3,11 @@ package co.spendabit.webapp.forms.v2
 import java.net.URL
 import javax.mail.internet.InternetAddress
 
-import co.spendabit.XMLHelpers
 import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.ui.bootstrap
 import org.scalatest.FunSuite
 
-class FormTests extends FunSuite with XMLHelpers {
-
-  trait PostWebForm[T] extends BaseWebForm[T] {
-    def method = POST
-    def action = "/post-here"
-  }
+class FormTests extends FunSuite with FormTestHelpers {
 
   test("basic form rendering") {
 
@@ -195,38 +189,6 @@ class FormTests extends FunSuite with XMLHelpers {
     assert(!f.validate(Map("email" -> Seq("jason"))).isValid)
   }
 
-  test("form is given proper 'enctype'") {
-
-    // XXX: Yuck. We need a better way to do file-upload inputs.
-    case class FileUploadInput(override val label: String, name: String)
-            extends LabeledControl[Unit](label) {
-      def widgetHTML(value: Option[Unit]) = <input type="file" name={ name } />
-      def validate(params: Map[String, Seq[String]]) = Right(Unit)
-    }
-
-    val formWithoutFileInput = new PostWebForm[String] with WebForm1[String] {
-      def fields = TextInput(label = "Enter a value", name = "the-value")
-    }
-    val f1 = formWithoutFileInput.html.asInstanceOf[xml.Elem]
-    assert(f1.label == "form")
-    getAttr(f1, "enctype").foreach { enc => assert(enc != "multipart/form-data") }
-
-    val formWithFileInput = new PostWebForm[Unit] with WebForm1[Unit] {
-      def fields = FileUploadInput(label = "Upload a file", name = "f")
-    }
-    val f2 = formWithFileInput.html.asInstanceOf[xml.Elem]
-    assert(getAttr(f2, "enctype").contains("multipart/form-data"))
-
-    // And ensure the proper 'enctype' even when rendering using a custom renderer...
-    val renderer = new bootstrap.HorizontalForm
-    val renderedWithout = formWithoutFileInput.html(renderer).asInstanceOf[xml.Elem]
-    getAttr(renderedWithout, "enctype").foreach { enc =>
-      assert(enc != "multipart/form-data")
-    }
-    val renderedWith = formWithFileInput.html(renderer).asInstanceOf[xml.Elem]
-    assert(getAttr(renderedWith, "enctype").contains("multipart/form-data"))
-  }
-
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
@@ -275,29 +237,5 @@ class FormTests extends FunSuite with XMLHelpers {
                     TextInput(name = "f2", label = "Field 4"))
     }
     form.html
-  }
-
-  private def getControlValue(html: xml.NodeSeq, name: String): Option[String] = {
-    val control = getControl(html, name)
-    control.label match {
-      case "input"    => getAttr(control, "value")
-      case "textarea" => Some(control.child.text)
-      case l          => fail(s"Unsupported control type: $l")
-    }
-  }
-
-  private def containsInputWithName(html: xml.NodeSeq, name: String,
-                                    nodeType: String = "input"): Boolean =
-    (html \\ nodeType).filter(n => getAttr(n, "name").contains(name)).length == 1
-
-  private def getInput(html: xml.NodeSeq, name: String): xml.Node =
-    getControl(html, name, Seq("input"))
-
-  private def getControl(html: xml.NodeSeq, name: String,
-                         nodeTypes: Seq[String] = Seq("input", "textarea")): xml.Node = {
-
-    val allControls = nodeTypes.flatMap(t => html \\ t)
-    allControls.find(n => getAttr(n, "name").contains(name)).
-      getOrElse(fail(s"No form-control with name '$name' found"))
   }
 }

@@ -2,7 +2,7 @@ package co.spendabit.webapp.forms.controls
 
 class RadioButtonSet(override val label: String, val name: String,
                      options: Seq[(String, String)])
-        extends LabeledControl[String](label) {
+        extends NonFileField[String](label) {
 
   def widgetHTML(value: Option[String] = None): xml.NodeSeq =
     <div>

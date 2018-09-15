@@ -25,10 +25,10 @@ object CodeGeneration {
     val content = s"""
       |package co.spendabit.webapp.forms.v2
       |
-      |import co.spendabit.webapp.forms.controls.LabeledControl
+      |import co.spendabit.webapp.forms.controls.Field
       |
       |trait WebForm$n[$typeParamsStr] extends BaseWebForm[($typeParamsStr)] {
-      |  protected def fields: (${ typeParamNames.map(t => s"LabeledControl[$t]").mkString(", ") })
+      |  protected def fields: (${ typeParamNames.map(t => s"Field[$t]").mkString(", ") })
       |  protected def fieldsSeq = Seq(${ Range.inclusive(1, n).map("fields._" + _).mkString(", ") })
       |  protected def seqToTuple(s: Seq[_]) =
       |   (${ Range.inclusive(0, n - 1).map("s(" + _ + ")").mkString(", ") }).

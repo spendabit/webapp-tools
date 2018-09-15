@@ -1,7 +1,7 @@
 package co.spendabit.webapp.forms.controls
 
 abstract class SelectField[T](override val label: String, name: String, options: Seq[T])
-        extends LabeledControl[T](label) {
+        extends NonFileField[T](label) {
 
   /** Must provide the (unique) value that will be placed in the underlying <option> element's
     * 'value' attribute.

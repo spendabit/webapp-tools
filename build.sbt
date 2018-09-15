@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.3",
   "org.scalatra" %% "scalatra-scalatest" % "2.6.3",
   "org.scalatra" %% "scalatra" % "2.6.3",
-  "commons-fileupload" % "commons-fileupload" % "1.3.3"
+  "commons-fileupload" % "commons-fileupload" % "1.3.3",
+  "org.log4s" %% "log4s" % "1.6.1"
 )
 
 publishMavenStyle := true
@@ -61,6 +62,8 @@ sonatypeProfileName := "co.spendabit"
 scalaSource in Compile := { (baseDirectory in Compile)(_ / "src") }.value
 
 scalaSource in Test := { (baseDirectory in Test)(_ / "test") }.value
+
+unmanagedClasspath in Test += baseDirectory.value / "test" / "resources"
 
 // Use "-oF" switch to get full stack-traces.
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oS")

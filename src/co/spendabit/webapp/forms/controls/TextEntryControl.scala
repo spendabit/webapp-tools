@@ -5,12 +5,9 @@ package co.spendabit.webapp.forms.controls
   * integer, or URL).
   */
 abstract class TextEntryControl[T](override val label: String, val name: String)
-        extends LabeledControl[T](label) {
-
-//  def valueAsString(value: String): String = value
+        extends NonFileField[T](label) {
 
   def validate(s: String): Either[String, T]
-//  def widgetHTML(id: String, value: Option[String] = None): xml.Node
 
   def validate(params: Map[String, Seq[String]]): Either[String, T] = {
 
