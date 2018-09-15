@@ -108,12 +108,12 @@ abstract class BaseWebForm[T] extends MultipartFormHandling {
 
     if (validationResults.count(_.isRight) == validationResults.length) {
       val tupledValues = seqToTuple(validationResults.map(_.right.get))
-      crossFieldValidations.map(f => f(tupledValues)).flatten match {
+      crossFieldValidations.flatMap(f => f(tupledValues)) match {
         case Seq()  => Valid(tupledValues)
         case errors => Invalid(errors)
       }
     } else {
-      Invalid(validationResults.map(_.left.toSeq).flatten)
+      Invalid(validationResults.flatMap(_.left.toSeq))
     }
   }
 
