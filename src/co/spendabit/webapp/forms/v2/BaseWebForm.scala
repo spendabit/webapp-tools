@@ -122,7 +122,8 @@ abstract class BaseWebForm[T] extends MultipartFormHandling {
     val items = uploadConfig.map { conf =>
       readMultipartFormData(request, conf)
     }.getOrElse {
-      log.error(s"Received multipart (${request.getContentType}) request, but `uploadConfig` " +
+      val ct = request.getContentType.split(';').map(_.trim).head
+      log.error(s"Received multipart ($ct) request, but `uploadConfig` " +
         s"is not set; no form values will be decoded")
       Seq()
     }
