@@ -1,10 +1,10 @@
 package co.spendabit.webapp.forms.v2
 
-import co.spendabit.webapp.MultipartFormHandling
-import javax.servlet.http.HttpServletRequest
+import co.spendabit.webapp.{MultipartFormHandling, UploadConfig}
 import co.spendabit.webapp.forms.controls.Field
 import co.spendabit.webapp.forms.ui.FormRenderer
 import co.spendabit.webapp.forms.util.withAttrs
+import javax.servlet.http.HttpServletRequest
 import org.apache.commons.fileupload.FileItem
 
 abstract class BaseWebForm[T] extends MultipartFormHandling {

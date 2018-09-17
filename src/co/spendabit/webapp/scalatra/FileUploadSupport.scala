@@ -1,6 +1,6 @@
 package co.spendabit.webapp.scalatra
 
-import co.spendabit.webapp.MultipartFormHandling
+import co.spendabit.webapp.{MultipartFormHandling, UploadConfig}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.fileupload.FileItem
 import org.scalatra._

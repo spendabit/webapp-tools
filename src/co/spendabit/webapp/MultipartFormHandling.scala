@@ -12,8 +12,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload
   */
 trait MultipartFormHandling {
 
-  case class UploadConfig(maxFileSize: Long, saveToDiskThreshold: Int)
-
   protected def readMultipartFormData(req: HttpServletRequest,
                                       uploadConfig: UploadConfig): Seq[FileItem] = {
 

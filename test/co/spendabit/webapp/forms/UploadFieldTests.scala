@@ -4,6 +4,7 @@ import java.io.{File, InputStream}
 import scala.util.Random
 
 import co.spendabit.test.scalatra.AdvancedWebBrowsing
+import co.spendabit.webapp.UploadConfig
 import co.spendabit.webapp.forms.controls.{EmailField, FileUploadInput, TextInput}
 import co.spendabit.webapp.forms.ui.bootstrap
 import co.spendabit.webapp.forms.v2._
