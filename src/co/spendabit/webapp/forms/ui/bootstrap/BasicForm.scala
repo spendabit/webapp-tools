@@ -14,12 +14,20 @@ class BasicForm extends FormRenderer {
     </form>
 
   def labeledControl(label: String, control: xml.NodeSeq): xml.NodeSeq =
-    if (isCheckbox(control))
+    if (isCheckbox(control)) {
       <div class="checkbox"> <label>{ control } { label }</label> </div>
-    else
+    } else {
+
+      val widget =
+        if (isFileInput(control))
+          control
+        else
+          withAttr(control, "class", "form-control")
+
       <div class="form-group">
-        <label>{ label }</label> { withAttr(control, "class", "form-control") }
+        <label>{ label }</label> { widget }
       </div>
+    }
 
   protected def submitSection: xml.NodeSeq =
     <button type="submit" class="btn btn-primary">{ submitButtonLabel }</button>

@@ -75,4 +75,3 @@ sourceGenerators in Compile += Def.task {
     file
   }
 }.taskValue
-

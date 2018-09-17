@@ -17,8 +17,14 @@ abstract class FormRenderer {
     }
 
   protected def isCheckbox(control: xml.NodeSeq): Boolean =
+    isInputWithGivenType(control, "checkbox")
+
+  protected def isFileInput(control: xml.NodeSeq): Boolean =
+    isInputWithGivenType(control, "file")
+
+  protected def isInputWithGivenType(control: xml.NodeSeq, t: String): Boolean =
     control match {
-      case e: xml.Elem if e.label == "input" && getAttr(e, "type") == Some("checkbox") => true
+      case e: xml.Elem if e.label == "input" && getAttr(e, "type").contains(t) => true
       case _ => false
     }
 }
