@@ -4,8 +4,6 @@ import javax.mail
 import javax.mail.internet.{MimeMessage, InternetAddress}
 import scala.collection.convert.WrapAsJava
 
-import org.slf4j.LoggerFactory
-
 trait BasicTextEmailSupport extends WrapAsJava {
 
   sealed trait Protocol { def code: String }
