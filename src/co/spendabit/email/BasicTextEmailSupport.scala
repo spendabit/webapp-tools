@@ -19,8 +19,6 @@ trait BasicTextEmailSupport extends WrapAsJava {
   protected def smtpUsername: String
   protected def smtpPassword: String
 
-  private lazy val log = LoggerFactory.getLogger("co.spendabit.email.BasicTextEmailSupport")
-
   protected def sendTextEmail(from: InternetAddress, to: Seq[InternetAddress],
                               subject: String, textBody: String) {
     val toLine = to.map(_.getAddress).mkString(", ")
@@ -61,4 +59,6 @@ trait BasicTextEmailSupport extends WrapAsJava {
       " and from-address " + s.getProperty(s"mail.$proto.from"))
     s
   }
+
+  private lazy val log = org.log4s.getLogger
 }
