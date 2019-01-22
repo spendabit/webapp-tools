@@ -1,6 +1,5 @@
 package co.spendabit.webapp.scalatra
 
-import javax.mail.internet.InternetAddress
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.scalatra.servlet.ServletBase
 
@@ -10,6 +9,16 @@ import org.scalatra.servlet.ServletBase
   */
 trait ExceptionHandling extends ServletBase {
 
+  /** `sendExceptionNotification` is responsible for actually firing off an email from the
+    * application, and it will be invoked when an exception goes uncaught in production. The
+    * `details` parameter will be a string containing the stack-trace and other contextual
+    * details (the URI that was requested, session info, etc).
+    *
+    * This abstract method is used so as to make this interface (`ExceptionHandling`) agnostic
+    * with regard to the email (or other) notification back-end.
+    */
+  protected def sendExceptionNotification(details: String)
+
   /** @return HTML content to be served when errors occur when `isDevelopmentMode` returns true.
     */
   protected def errorPageForDevelopment(exception: Throwable): String
@@ -18,9 +27,9 @@ trait ExceptionHandling extends ServletBase {
     */
   protected def errorPageForProduction(exception: Throwable): String
 
+  /** @return All session variables.
+    */
   protected def sessionVariables: Map[String, String]
-
-  protected def recipients(exception: Throwable): Seq[InternetAddress]
 
   override protected def renderUncaughtException(e: Throwable)
                                                 (implicit request: HttpServletRequest,
@@ -54,8 +63,7 @@ trait ExceptionHandling extends ServletBase {
           request.headers.map(h => "  " + h._1 + ": " + h._2).mkString("\n") + "\n\n" +
           "Request body:\n" + request.body
 
-      // TODO: Implement email hook!
-      // internalEmailNotification("An exception occurred!", msgBody, recipients(e))
+      sendExceptionNotification(msgBody)
     }
   }
 
