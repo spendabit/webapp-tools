@@ -70,7 +70,7 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     * value to be sent to the server when submitting the containing form, but it should rather
     * lead to *no* parameter being submitted at all.
     */
-  test("select element with no options does not lead to an empty parameter") {
+  test("<select> element with no options does not lead to an empty parameter") {
     get("/form-with-empty-select-control") {
       submitSoleForm() {
         assert(body.trim == "")
@@ -108,8 +108,10 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
       } catch {
         case _: ItSubmitted =>
           fail("The form had no 'submit' button, so should not have been submittable")
+        case _: IllegalArgumentException =>
+          // That's what we want.
         case _: org.scalatest.exceptions.TestFailedException =>
-        // We'll take it.
+          // We'll take that too (I guess).
       }
     }
   }
@@ -125,6 +127,19 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
         submitForm(getForm("form"), context = Some(path), Seq()) {
           assert(status >= 200 && status < 300)
           assert(body.contains("Submitted!"))
+        }
+      }
+    }
+  }
+
+  test("'submitForm' includes a parameter for the submit button when said button has a 'value'") {
+
+    val btnValue = scala.util.Random.alphanumeric.take(10).mkString
+
+    Seq("submit", "button").foreach { btnType =>
+      get(s"/form-with-button-with-value?btn-type=$btnType&value=" + btnValue) {
+        submitSoleForm() {
+          assert(body.contains(btnValue))
         }
       }
     }
@@ -214,6 +229,17 @@ class TestServlet extends ScalatraServlet {
         <input type="text" name="theField" />
         <button class="useless">Useless Button!</button>
       </form>)
+  }
+
+  get("/form-with-button-with-value") {
+
+    val btn =
+      if (params("btn-type") == "input")
+        <input type="submit" name="btn" value={ params("value") } />
+      else
+        <button type="submit" name="btn" value={ params("value") }>Go!</button>
+
+    page(<form method="post" action="/echo-params">{ btn }</form>)
   }
 
   get("/redirect-me") {

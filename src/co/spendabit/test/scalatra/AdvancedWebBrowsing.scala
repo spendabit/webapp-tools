@@ -38,8 +38,16 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
   protected def submitForm[A](form: Element, context: Option[String],
                               params: Seq[(String, String)])(f: => A): A = {
 
-    assert(form.select("input[type=submit], button[type=submit]").length > 0,
-      "The provided form has no submit buttons")
+    val submitButton =
+      form.select("input[type=submit], button[type=submit]").toSeq match {
+        case Seq() =>
+          throw new IllegalArgumentException("The provided form has no submit buttons")
+        case Seq(b) => b
+        case _ =>
+          // TODO: Add support for specifying the submit button to "click".
+          throw new IllegalArgumentException("The provided form has multiple submit buttons; " +
+            "not sure which to \"click\"")
+      }
 
     val availableFields = form.select(s"input, textarea, select").map(_.attr("name"))
     params.foreach { case (name, _) =>
@@ -65,7 +73,11 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       else
         action
 
-    val valuesToSubmit = (defaultValuesForForm(form).toMap ++ params.toMap).toSeq
+    val submitButtonVal: Option[(String, String)] =
+      Option(submitButton.attr("name")).filterNot(_ == "").map(n =>
+        n -> Option(submitButton.attr("value")).getOrElse(""))
+    val valuesToSubmit = (defaultValuesForForm(form).toMap ++ params.toMap).toSeq ++
+      submitButtonVal
     form.attr("method").toLowerCase match {
       case "get"  => get(uri, valuesToSubmit:_*)(f)
       case "post" =>
