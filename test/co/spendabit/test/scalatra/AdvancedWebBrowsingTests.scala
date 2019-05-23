@@ -31,6 +31,20 @@ class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
     }
   }
 
+  test("submitting form using 'submitFormVia'") {
+    get("/form-with-multiple-submit-buttons") {
+
+      Seq("b1" -> "terrific", "b2" -> "super").foreach { case (btnName, btnVal) =>
+        val x = util.Random.alphanumeric.take(10).mkString
+        val btn = selectElems(s"button[name=$btnName]").head
+        submitFormVia(button = btn, params = Seq("x" -> x)) {
+          assert(body.contains(s"$btnName: $btnVal"))
+          assert(body.contains(s"x: $x"))
+        }
+      }
+    }
+  }
+
   test("'submitForm' properly submits values for 'textarea' elements") {
 
     info("should accept explicitly specified value")
@@ -240,6 +254,15 @@ class TestServlet extends ScalatraServlet {
         <button type="submit" name="btn" value={ params("value") }>Go!</button>
 
     page(<form method="post" action="/echo-params">{ btn }</form>)
+  }
+
+  get("/form-with-multiple-submit-buttons") {
+    page(
+      <form method="post" action="/echo-params">
+        <input type="text" name="x" />
+        <button type="submit" name="b1" value="terrific">A</button>
+        <button type="submit" name="b2" value="super">B</button>
+      </form>)
   }
 
   get("/redirect-me") {

@@ -1,6 +1,7 @@
 package co.spendabit.test.scalatra
 
 import java.net.URL
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 import co.spendabit.html.jsoup
@@ -36,7 +37,7 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     *                form has an 'action' that's a relative path (e.g. ./submit-here.html).
     */
   protected def submitForm[A](form: Element, context: Option[String],
-                              params: Seq[(String, String)])(f: => A): A = {
+                              params: Params)(f: => A): A = {
 
     val submitButton =
       form.select("input[type=submit], button[type=submit]").toSeq match {
@@ -44,10 +45,22 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
           throw new IllegalArgumentException("The provided form has no submit buttons")
         case Seq(b) => b
         case _ =>
-          // TODO: Add support for specifying the submit button to "click".
           throw new IllegalArgumentException("The provided form has multiple submit buttons; " +
             "not sure which to \"click\"")
       }
+
+    submitFormVia(submitButton, context, params)(f)
+  }
+
+  protected def submitFormVia[A](button: Element, context: Option[String],
+                                 params: Params)(f: => A): A = {
+
+    if (!Seq("input", "button").contains(button.tagName) || button.attr("type") != "submit")
+      throw new IllegalArgumentException("The given element is not a submit button: " + button)
+
+    val form: Element = firstMatchingAncestor(button)(_.tagName == "form").
+      getOrElse(throw new IllegalArgumentException(
+        "The provided `button` is not contained within a form"))
 
     val availableFields = form.select(s"input, textarea, select").map(_.attr("name"))
     params.foreach { case (name, _) =>
@@ -74,8 +87,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
         action
 
     val submitButtonVal: Option[(String, String)] =
-      Option(submitButton.attr("name")).filterNot(_ == "").map(n =>
-        n -> Option(submitButton.attr("value")).getOrElse(""))
+      Option(button.attr("name")).filterNot(_ == "").map(n =>
+        n -> Option(button.attr("value")).getOrElse(""))
     val valuesToSubmit = (defaultValuesForForm(form).toMap ++ params.toMap).toSeq ++
       submitButtonVal
     form.attr("method").toLowerCase match {
@@ -89,8 +102,19 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     }
   }
 
+  @tailrec
+  private def firstMatchingAncestor(elem: Element)(qualifier: Element => Boolean): Option[Element] =
+    elem.parent match {
+      case null => None
+      case parent: Element =>
+        if (qualifier(parent))
+          Some(parent)
+        else
+          firstMatchingAncestor(parent)(qualifier)
+    }
+
   // TODO: Add support for default values in other control/input types.
-  protected def defaultValuesForForm(form: Element): Seq[(String, String)] =
+  protected def defaultValuesForForm(form: Element): Params =
     form.select("input[value]").
       filter { i: Element => Seq("text", "hidden").contains(i.attr("type")) }.
       map(i => (i.attr("name"), i.attr("value"))) ++
@@ -104,6 +128,11 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     */
   protected def submitForm[A](form: Element, params: (String, String)*)(f: => A): A =
     submitForm(form, None, params)(f)
+
+  /** Submit the form that contains `button` using said `button` (by "clicking" that button).
+    */
+  protected def submitFormVia[A](button: Element, params: Params)(f: => A): A =
+    submitFormVia(button, context = None, params)(f)
 
   /** A simple wrapper around `submitForm` that may be used when one, and *only one*, form is
     * present on the current page.
@@ -149,4 +178,6 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
       newURL.getPath + q
     }
   }
+
+  type Params = Seq[(String, String)]
 }
