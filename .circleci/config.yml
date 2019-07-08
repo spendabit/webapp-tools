@@ -12,7 +12,7 @@ jobs:
           command: 'sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823'
       - run:
           name: Install SBT
-          command: 'sudo apt update && sudo apt install sbt'
+          command: 'sudo apt install apt-transport-https && sudo apt update && sudo apt install sbt'
       - run:
           name: Run Test Suite
           command: 'sbt test'
