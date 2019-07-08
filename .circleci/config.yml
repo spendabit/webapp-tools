@@ -16,5 +16,5 @@ jobs:
           command: 'sudo apt install apt-transport-https && sudo apt update && sudo apt install sbt'
       - run:
           name: Run Test Suite
-          command: 'sbt test'
+          command: 'sbt +test'
 
