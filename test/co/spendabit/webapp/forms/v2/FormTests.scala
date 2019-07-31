@@ -189,6 +189,21 @@ class FormTests extends FunSuite with FormTestHelpers {
     assert(!f.validate(Map("email" -> Seq("jason"))).isValid)
   }
 
+  test("use of `HiddenInput`") {
+
+    val f = new PostWebForm[(String, String)] with WebForm2[String, String] {
+      def fields = (
+        HiddenInput("x"),
+        TextInput(label = "Fav color", name = "color"))
+    }
+
+    assert(f.validate(Map("x" -> "whatever", "color" -> "Orange")).isValid)
+
+    val renderer = new bootstrap.HorizontalForm
+    val html = f.html(renderer, Map("x" -> Seq("hidden value!"))).head
+    assert((html \\ "label").length == 1)
+  }
+
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
@@ -238,4 +253,7 @@ class FormTests extends FunSuite with FormTestHelpers {
     }
     form.html
   }
+
+  private implicit def toParams(map: Map[String, String]): Map[String, Seq[String]] =
+    map.map(x => x._1 -> Seq(x._2))
 }

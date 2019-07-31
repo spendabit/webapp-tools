@@ -22,6 +22,9 @@ class HorizontalForm extends FormRenderer {
     <div class="form-group">{
       control match {
 
+        case e: xml.Elem if e.label == "input" && getAttr(e, "type").contains("hidden") =>
+          control
+
         case e: xml.Elem if e.label == "input" && getAttr(e, "type").contains("checkbox") =>
           <div class={ s"col-xs-12 col-sm-offset-$leftColumnWidth col-sm-$rightColumnWidth" }>
             <div class="checkbox"> <label>{ control } { label }</label> </div>
