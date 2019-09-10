@@ -160,6 +160,22 @@ class FormTests extends FunSuite with FormTestHelpers {
     assert(!f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("nada"))).isValid)
   }
 
+  test("whitespace is trimmed and whitespace-only is considered empty, for text fields") {
+
+    val f = new WebForm1[String] {
+      def action = "./"
+      def method = POST
+      def fields = TextInput(label = "Celestial Sign", name = "sign")
+    }
+
+    assert(!f.validate(Map("sign" -> Seq(" "))).isValid)
+    assert(f.validate(Map("sign" -> Seq("Pisces"))).isValid)
+
+    f.validate(Map("sign" -> Seq("\tGemini "))) match {
+      case Valid(v) => assert(v == "Gemini")
+    }
+  }
+
   test("cross-field validations") {
     val form = new PostWebForm[(String, String)] with WebForm2[String, String] {
       protected def fields = (PasswordInput(name = "pass1", label = "Password",
