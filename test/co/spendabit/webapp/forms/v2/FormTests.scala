@@ -173,6 +173,7 @@ class FormTests extends FunSuite with FormTestHelpers {
 
     f.validate(Map("sign" -> Seq("\tGemini "))) match {
       case Valid(v) => assert(v == "Gemini")
+      case _ => fail("Form did not validate!")
     }
   }
 
