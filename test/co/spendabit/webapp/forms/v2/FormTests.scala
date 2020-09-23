@@ -221,6 +221,15 @@ class FormTests extends FunSuite with FormTestHelpers {
     assert((html \\ "label").length == 1)
   }
 
+  test("validation using `EmailField`") {
+    val f = EmailField(label = "E-mail", name = "e")
+    pending
+    f.validate("john@árbolito.com").right.map { e =>
+      // If the address is accepted, then it should be converted using "Punycode".
+      assert(e.getAddress == "john@xn--rbolito-gwa.com")
+    }
+  }
+
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
