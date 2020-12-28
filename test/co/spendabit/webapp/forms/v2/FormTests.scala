@@ -1,8 +1,9 @@
 package co.spendabit.webapp.forms.v2
 
 import java.net.URL
-import javax.mail.internet.InternetAddress
+import java.time.LocalDateTime
 
+import javax.mail.internet.InternetAddress
 import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.ui.bootstrap
 import org.scalatest.FunSuite
@@ -230,6 +231,19 @@ class FormTests extends FunSuite with FormTestHelpers {
     }
   }
 
+  test("date/time validation using `DateTimeInput`") {
+
+    val dt = LocalDateTime.now()
+    val dateStr = Seq(
+      dt.getYear.toString,
+      (if (dt.getMonthValue < 10) "0" else "") + dt.getMonthValue,
+      randomInt(17) + 10).mkString("-")
+    val timeStr = (randomInt(13) + 10) + ":" + (randomInt(45) + 10)
+
+    val input = DateTimeInput("Send at", name = "dt")
+    assert(input.validate(Map("dt" -> Seq(dateStr + " " + timeStr))).isRight)
+  }
+
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
@@ -279,6 +293,9 @@ class FormTests extends FunSuite with FormTestHelpers {
     }
     form.html
   }
+
+  protected def randomInt(max: Int) =
+    scala.util.Random.nextInt(max) + 1
 
   private implicit def toParams(map: Map[String, String]): Map[String, Seq[String]] =
     map.map(x => x._1 -> Seq(x._2))
