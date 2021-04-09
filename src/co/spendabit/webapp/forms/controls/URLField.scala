@@ -31,8 +31,9 @@ case class URLField(override val label: String = "URL", override val name: Strin
       }
 
       val hasSpuriousDot = url.getHost.split('.').contains("")
+      val lastCharValid = url.getHost.length > 0 && !Seq('.', '-').contains(url.getHost.last)
 
-      if (hasTLD && !hasInvalidCharsInHostname && !hasSpuriousDot)
+      if (hasTLD && !hasInvalidCharsInHostname && !hasSpuriousDot && lastCharValid)
         Right(url)
       else
         throw new MalformedURLException

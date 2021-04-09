@@ -231,6 +231,21 @@ class FormTests extends FunSuite with FormTestHelpers {
     }
   }
 
+  test("validate using `URLField`") {
+
+    val f = new WebForm1[URL] with PostWebForm[URL] {
+      def fields = URLField(label = "Your website", name = "website")
+    }
+
+    val invalid = Seq(
+      "my-site", "//impossible. com", "www.//Theimprovement. Com", "jokes .org",
+      "://somewhere.co.uk", "great.co-")
+    invalid.foreach { u =>
+      assert(!f.validate(Map("website" -> Seq(u))).isValid,
+        "Following should be considered invalid: " + u)
+    }
+  }
+
   test("date/time validation using `DateTimeInput`") {
 
     val dt = LocalDateTime.now()
