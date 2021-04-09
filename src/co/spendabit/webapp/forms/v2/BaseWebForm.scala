@@ -1,5 +1,6 @@
 package co.spendabit.webapp.forms.v2
 
+import co.spendabit.webapp.forms.{Invalid, Valid, ValidationResult}
 import co.spendabit.webapp.{MultipartFormHandling, UploadConfig}
 import co.spendabit.webapp.forms.controls.Field
 import co.spendabit.webapp.forms.ui.FormRenderer
