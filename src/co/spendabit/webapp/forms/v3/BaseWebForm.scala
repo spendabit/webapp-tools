@@ -4,9 +4,9 @@ import scala.xml.NodeSeq
 
 import co.spendabit.webapp.forms.{Invalid, Valid, ValidationResult}
 import co.spendabit.webapp.{MultipartFormHandling, UploadConfig}
-import co.spendabit.webapp.forms.controls.Field
 import co.spendabit.webapp.forms.ui.FormRenderer
 import co.spendabit.webapp.forms.util.withAttrs
+import co.spendabit.webapp.forms.v3.controls.TextBasedInput
 import javax.servlet.http.HttpServletRequest
 import org.apache.commons.fileupload.FileItem
 
@@ -49,9 +49,9 @@ abstract class BaseWebForm[T] extends MultipartFormHandling {
     val fieldsMarkup = {
 
       val widgets = widgetsHTML(None) // XXX
-      val combined = fieldsSeq.zip(widgets).map { case (controlObject, controlHTML) =>
+      val combined = fieldsSeq.zip(widgets).map { case (field, controlHTML) =>
         // TODO: Add 'id' to control and 'for' to label!
-        renderer.labeledControl(controlObject.label, controlHTML)
+        renderer.labeledControl(field.label, controlHTML)
       }
 
       combined.tail.foldLeft(xml.NodeSeq.fromSeq(combined.head)) {
@@ -115,7 +115,12 @@ abstract class BaseWebForm[T] extends MultipartFormHandling {
   def validate(params: Map[String, Seq[String]],
                fileItems: Seq[FileItem] = Seq()): ValidationResult[T] = {
 
-    val validationResults = fieldsSeq.map(f => f.validate(params, fileItems))
+    val validationResults = fieldsSeq.zipWithIndex.map { case (f, a) =>
+      f.control match {
+        case c: TextBasedInput[T] =>
+          c.validate(params.get(a.toString).flatMap(_.headOption).getOrElse(""))
+      }
+    }
 
     if (validationResults.count(_.isRight) == validationResults.length) {
       val tupledValues = seqToTuple(validationResults.map(_.right.get))

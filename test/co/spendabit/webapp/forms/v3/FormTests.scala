@@ -3,9 +3,9 @@ package co.spendabit.webapp.forms.v3
 import java.net.URL
 import java.time.LocalDateTime
 
-import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.ui.{FormRenderer, bootstrap}
 import co.spendabit.webapp.forms.ui.bootstrap.BasicForm
+import co.spendabit.webapp.forms.v3.controls.{Control, EmailAddr, Password, Textarea}
 import co.spendabit.webapp.forms.{Invalid, Valid}
 import javax.mail.internet.InternetAddress
 import org.scalatest.FunSuite
@@ -17,9 +17,9 @@ class FormTests extends FunSuite with FormTestHelpers {
     val f = new WebForm3[InternetAddress, String, String]
               /*with PostWebForm[(InternetAddress, String, String)]*/ {
       def fields =
-        (EmailField(label = "Email address", name = "theEmail"),
-         PasswordInput(label = "Password", name = "pass", minLength = 7),
-         Textarea(label = "Your story", name = "story"))
+        (Field(label = "Email address", EmailAddr),
+         Field(label = "Password", Password(minLength = 7)),
+         Field(label = "Your story", Textarea))
     }
     val markup = html(f)
 
@@ -32,11 +32,16 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("support for 'placeholder' text") {
 
+    case class F[T](override val label: String,
+                    placeholder: String,
+                    override val control: Control[T])
+      extends Field[T](label = label, control)
+
     val f = new WebForm3[InternetAddress, String, String] {
-      def fields =
-        (EmailField(label = "Email address", name = "e", placeholder = "john@example.org"),
-          TextInput(label = "Name", name = "n", placeholder = "John Smith"),
-          Textarea(label = "Comments", name = "comments", placeholder = "Talk to us."))
+      def fields = (
+        F(label = "Email address", placeholder = "john@example.org", controls.EmailAddr),
+        F(label = "Name", placeholder = "John Smith", controls.TextLine),
+        F(label = "Comments", placeholder = "Talk to us.", controls.Textarea))
     }
     val markup = html(f)
 
@@ -52,23 +57,25 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("rendering with entered values") {
 
     val f = new WebForm3[InternetAddress, String, String] {
-      def fields = (EmailField(label = "Email address", name = "theEmail"),
-                    TextInput(label = "Your name", name = "nombre"),
-                    Textarea(label = "Your story", name = "story"))
+      def fields = (
+        Field(label = "Email address", controls.EmailAddr),
+        Field(label = "Your name", controls.TextLine),
+        Field(label = "Your story", controls.Textarea))
     }
 
     val enteredValues = Map("theEmail" -> "not-valid", "nombre" -> "José", "story" -> "a bold tale")
     val markup = html(f, enteredValues)
 
     enteredValues.foreach { case (n, v) =>
-      assert(getControlValue(markup, name = n) === Some(v))
+      assert(getControlValue(markup, name = n).isDefined)
+      assert(getControlValue(markup, name = n).contains(v))
     }
   }
 
   test("form using all-custom HTML with a radio-button set") {
 
     val form = new WebForm1[String] {
-      def fields = TextInput(name = "desire", label = "Your desire?")
+      def fields = Field(label = "Your desire?", controls.TextLine)
     }
 
     val formMarkup =
@@ -96,7 +103,7 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("functionality of checkbox field") {
 
     val form = new WebForm1[Boolean] {
-      def fields = Checkbox(label = "Check here if you like Moesha.", name = "moesha")
+      def fields = Field(label = "Check here if you like Moesha.", controls.Checkbox)
     }
 
     val box = getControl(html(form), "moesha")
@@ -127,14 +134,14 @@ class FormTests extends FunSuite with FormTestHelpers {
     object Orange extends Fruit { val name = "Orange" }
     object Banana extends Fruit { val name = "Banana" }
 
-    object FruitSelector extends SelectField[Fruit]("Favorite fruit", name = "fruit",
-                                                    options = Seq(Apple, Orange, Banana)) {
+    object FruitSelector extends controls.SelectField[Fruit](
+            options = Seq(Apple, Orange, Banana)) {
       protected def optionValue(opt: Fruit): String = opt.name.toLowerCase
       protected def optionLabel(opt: Fruit): String = opt.name
     }
 
     val form = new WebForm1[Fruit] {
-      def fields = FruitSelector
+      def fields = Field(label = "Favorite fruit", FruitSelector)
     }
 
     form.validate(Map("fruit" -> Seq("banana"))) match {
@@ -151,8 +158,9 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("basic validation") {
 
     val f = new WebForm2[String, URL] {
-      def fields = (TextInput(label = "Your name", name = "n"),
-                    URLField(label = "Your website", name = "website"))
+      def fields = (
+        Field(label = "Your name", controls.TextLine),
+        Field(label = "Your website", controls.URL()))
     }
 
     assert(f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("https://test.net"))).isValid)
@@ -162,7 +170,7 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("whitespace is trimmed and whitespace-only is considered empty, for text fields") {
 
     val f = new WebForm1[String] {
-      def fields = TextInput(label = "Celestial Sign", name = "sign")
+      def fields = Field(label = "Zodiac Sign", controls.TextLine)
     }
 
     assert(!f.validate(Map("sign" -> Seq(" "))).isValid)
@@ -176,10 +184,9 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("cross-field validations") {
     val form = new WebForm2[String, String] {
-      protected def fields = (PasswordInput(name = "pass1", label = "Password",
-                                minLength = 3),
-                              PasswordInput(name = "pass2", label = "Confirm Password",
-                                minLength = 3))
+      protected def fields = (
+        Field(label = "Password",         controls.Password(minLength = 3)),
+        Field(label = "Confirm Password", controls.Password(minLength = 3)))
       override protected def crossFieldValidations = Seq(
         { case (p1, p2) => if (p1 != p2) Some("Passwords must match.") else None }
       )
@@ -192,7 +199,7 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("use of 'Optional' field") {
 
     val f = new WebForm1[Option[InternetAddress]] {
-      def fields = Optional(EmailField(label = "Email", name = "email"))
+      def fields = Field(label = "Email", controls.Optional(controls.EmailAddr))
     }
 
     val noParams = Map[String, Seq[String]]()
@@ -207,8 +214,8 @@ class FormTests extends FunSuite with FormTestHelpers {
 
     val f = new WebForm2[String, String] {
       def fields = (
-        HiddenInput("x"),
-        TextInput(label = "Fav color", name = "color"))
+        Field(label = "x", controls.HiddenInput),
+        Field(label = "Fav color", controls.TextLine))
     }
 
     assert(f.validate(Map("x" -> "whatever", "color" -> "Orange")).isValid)
@@ -219,8 +226,8 @@ class FormTests extends FunSuite with FormTestHelpers {
     assert((html \\ "label").length == 1)
   }
 
-  test("validation using `EmailField`") {
-    val f = EmailField(label = "E-mail", name = "e")
+  test("validation of `EmailAddr` control") {
+    val f = controls.EmailAddr
     pending
     f.validate("john@árbolito.com").right.map { e =>
       // If the address is accepted, then it should be converted using "Punycode".
@@ -231,7 +238,7 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("validate using `URLField`") {
 
     val f = new WebForm1[URL] {
-      def fields = URLField(label = "Your website", name = "website")
+      def fields = Field(label = "Your website", controls.URL())
     }
 
     val invalid = Seq(
@@ -252,16 +259,17 @@ class FormTests extends FunSuite with FormTestHelpers {
       randomInt(17) + 10).mkString("-")
     val timeStr = (randomInt(13) + 10) + ":" + (randomInt(45) + 10)
 
-    val input = DateTimeInput("Send at", name = "dt")
-    assert(input.validate(Map("dt" -> Seq(dateStr + " " + timeStr))).isRight)
+    val input = controls.DateTimeInput
+    assert(input.validate(dateStr + " " + timeStr).isRight)
   }
 
   test("rendering using `FormRenderer` instance") {
 
     val renderer = new bootstrap.HorizontalForm
     val form = new WebForm2[String, URL] {
-      def fields = (TextInput(name = "name", label = "Name"),
-                    URLField(name = "website", label = "Website"))
+      def fields = (
+        Field(label = "Name", controls.TextLine),
+        Field(label = "Website", controls.URL()))
     }
 
     val formHTML = html(form, renderer).head
@@ -280,7 +288,7 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("`WebForm1` works properly") {
 
     val f = new WebForm1[String] {
-      val fields = TextInput(label = "Temperature", name = "temp")
+      val fields = Field(label = "Temperature", controls.TextLine)
     }
 
     // Previously, an issue with the way we defined `WebForm1` (using a val in place of def) led
@@ -295,10 +303,11 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("code for WebFormX classes (e.g. `WebForm2`, `WebForm3`, etc) is properly generated") {
     val form = new WebForm4[String, URL, InternetAddress, String] {
-      def fields = (Textarea(name = "f1", label = "Field 1"),
-                    URLField(name = "f2", label = "Field 2"),
-                    EmailField(name = "f2", label = "Field 3"),
-                    TextInput(name = "f2", label = "Field 4"))
+      def fields = (
+        Field(label = "Field 1", controls.Textarea),
+        Field(label = "Field 2", controls.URL()),
+        Field(label = "Field 3", controls.EmailAddr),
+        Field(label = "Field 4", controls.TextLine))
     }
     html(form)
   }

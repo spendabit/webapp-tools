@@ -1,7 +1,5 @@
 package co.spendabit.webapp.forms
 
-import co.spendabit.webapp.forms.controls.Field
-
 package object v3 {
 
   trait WebForm1[A] extends v3.BaseWebForm[A] {
@@ -11,7 +9,7 @@ package object v3 {
     protected def seqToTuple(s: Seq[_]) = s.head.asInstanceOf[A]
     protected def widgetsHTML(values: Option[A]): Seq[xml.NodeSeq] = {
       val vs = values.flatMap(vs => Some(vs))
-      Seq(f1.widgetHTML(vs))
+      Seq(f1.control.html(vs))
     }
   }
 }

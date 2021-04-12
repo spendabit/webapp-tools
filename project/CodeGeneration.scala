@@ -46,8 +46,6 @@ object CodeGeneration {
     val content2 = s"""
       |package co.spendabit.webapp.forms.v3
       |
-      |import co.spendabit.webapp.forms.controls.Field
-      |
       |trait WebForm$n[$typeParamsStr] extends BaseWebForm[($typeParamsStr)] {
       |  protected def fields: (${ typeParamNames.map(t => s"Field[$t]").mkString(", ") })
       |  protected def fieldsSeq = Seq(${ Range.inclusive(1, n).map("fields._" + _).mkString(", ") })
@@ -58,7 +56,7 @@ object CodeGeneration {
       |    val vs = values.map(vs =>
       |      (${ oneToN.map("Some(vs._" + _ + ")").mkString(", ") })).
       |        getOrElse((${ oneToN.map(_ => "None").mkString(", ") }))
-      |    Seq(${ oneToN.map(x => s"fields._$x.widgetHTML(vs._$x)").mkString(", ")})
+      |    Seq(${ oneToN.map(x => s"fields._$x.control.html(vs._$x)").mkString(", ")})
       |  }
       |}
     """.stripMargin
