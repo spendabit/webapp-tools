@@ -6,5 +6,9 @@ object TextLine extends GenericInput[String] {
 
   def valueAsString(value: String): String = value
 
-  def validate(s: String): Either[String, String] = Right(s)
+  def validate(s: String): Either[String, String] =
+    if (s.trim.nonEmpty)
+      Right(s.trim)
+    else
+      Left(s"Please provide a value.")
 }

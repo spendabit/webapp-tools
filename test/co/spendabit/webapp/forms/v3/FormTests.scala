@@ -1,69 +1,68 @@
 package co.spendabit.webapp.forms.v3
 
-import java.net.URL
-import java.time.LocalDateTime
-
-import co.spendabit.webapp.forms.ui.{FormRenderer, bootstrap}
-import co.spendabit.webapp.forms.ui.bootstrap.BasicForm
 import co.spendabit.webapp.forms.v3.controls.{Control, EmailAddr, Password, Textarea}
 import co.spendabit.webapp.forms.{Invalid, Valid}
-import javax.mail.internet.InternetAddress
 import org.scalatest.FunSuite
+
+import java.time.LocalDateTime
+import scala.language.higherKinds
 
 class FormTests extends FunSuite with FormTestHelpers {
 
   test("basic form rendering") {
 
-    val f = new WebForm3[InternetAddress, String, String]
-              /*with PostWebForm[(InternetAddress, String, String)]*/ {
-      def fields =
-        (Field(label = "Email address", EmailAddr),
-         Field(label = "Password", Password(minLength = 7)),
-         Field(label = "Your story", Textarea))
-    }
+    val f = WebForm3(
+      Field(label = "Email address", EmailAddr),
+       Field(label = "Password", Password(minLength = 7)),
+       Field(label = "Your story", Textarea))
     val markup = html(f)
 
-    assert(containsInputWithName(markup, "theEmail"))
-    assert(containsInputWithName(markup, "pass"))
-    assert(containsInputWithName(markup, "story", nodeType = "textarea"))
+    assert(containsInputWithName(markup, "email-address"))
+    assert(containsInputWithName(markup, "password"))
+    assert(containsInputWithName(markup, "your-story", nodeType = "textarea"))
 
     assert((markup \\ "label").length > 0)
   }
 
   test("support for 'placeholder' text") {
 
-    case class F[T](override val label: String,
-                    placeholder: String,
-                    override val control: Control[T])
+    case class CustomField[T](override val label: String, placeholder: String,
+                              override val control: Control[T])
       extends Field[T](label = label, control)
 
-    val f = new WebForm3[InternetAddress, String, String] {
-      def fields = (
-        F(label = "Email address", placeholder = "john@example.org", controls.EmailAddr),
-        F(label = "Name", placeholder = "John Smith", controls.TextLine),
-        F(label = "Comments", placeholder = "Talk to us.", controls.Textarea))
+    // This custom `FormRenderer` will include a 'placeholder' attribute for inputs.
+    object CustomRenderer extends DefaultFormRenderer[CustomField] {
+      override def labeledControl(field: CustomField[_], control: xml.NodeSeq): xml.NodeSeq =
+        super.labeledControl(field, withAttr(control, "placeholder", field.placeholder))
     }
-    val markup = html(f)
 
+    val f = WebForm3(
+        CustomField(label = "Email address", placeholder = "john@example.org", controls.EmailAddr),
+        CustomField(label = "Name", placeholder = "John Smith", controls.TextLine),
+        CustomField(label = "Comments", placeholder = "Talk to us.", controls.Textarea))
+    val markup: xml.NodeSeq = html(f, renderer = CustomRenderer)
+
+    assert((markup \\ "input").length == 2)
     (markup \\ "input").foreach { i =>
-      if (getAttr(i, "name").get == "e")
+      val inputName = getAttr(i, "name").get
+      if (inputName == "email-address")
         assert(getAttr(i, "placeholder").contains("john@example.org"))
-      else
+      else if (inputName == "name")
         assert(getAttr(i, "placeholder").contains("John Smith"))
+      else
+        fail("Found unexpected input: " + i)
     }
     assert(getAttr((markup \\ "textarea").head, "placeholder").contains("Talk to us."))
   }
 
   test("rendering with entered values") {
 
-    val f = new WebForm3[InternetAddress, String, String] {
-      def fields = (
-        Field(label = "Email address", controls.EmailAddr),
-        Field(label = "Your name", controls.TextLine),
-        Field(label = "Your story", controls.Textarea))
-    }
+    val f = new WebForm3(
+      Field(label = "Email address", controls.EmailAddr),
+      Field(label = "Your name", controls.TextLine),
+      Field(label = "Your story", controls.Textarea))
 
-    val enteredValues = Map("theEmail" -> "not-valid", "nombre" -> "José", "story" -> "a bold tale")
+    val enteredValues = Map("email-address" -> "not-valid", "your-name" -> "José", "your-story" -> "a bold tale")
     val markup = html(f, enteredValues)
 
     enteredValues.foreach { case (n, v) =>
@@ -74,9 +73,8 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("form using all-custom HTML with a radio-button set") {
 
-    val form = new WebForm1[String] {
-      def fields = Field(label = "Your desire?", controls.TextLine)
-    }
+    val form = WebForm1(
+      Field(label = "Your desire?", controls.TextLine))
 
     val formMarkup =
       <form method="post" action="/here">
@@ -102,9 +100,8 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("functionality of checkbox field") {
 
-    val form = new WebForm1[Boolean] {
-      def fields = Field(label = "Check here if you like Moesha.", controls.Checkbox)
-    }
+    val form = WebForm1(
+      Field(label = "Check here if you like Moesha.", controls.Checkbox))
 
     val box = getControl(html(form), "moesha")
     assert(getAttr(box, "checked").isEmpty,
@@ -138,18 +135,24 @@ class FormTests extends FunSuite with FormTestHelpers {
             options = Seq(Apple, Orange, Banana)) {
       protected def optionValue(opt: Fruit): String = opt.name.toLowerCase
       protected def optionLabel(opt: Fruit): String = opt.name
+      override protected def errorOnEmpty: String =
+        "Please select your preferred fruit."
     }
 
-    val form = new WebForm1[Fruit] {
-      def fields = Field(label = "Favorite fruit", FruitSelector)
-    }
+    val form = WebForm1(
+      Field(label = "Favorite fruit", FruitSelector))
 
-    form.validate(Map("fruit" -> Seq("banana"))) match {
+    form.validate(Map("favorite-fruit" -> Seq("banana"))) match {
       case Invalid(_) => fail("Form should have validated")
       case Valid(v) => assert(v == Banana)
     }
 
-    val rendered = html(form, values = Map("fruit" -> "orange"))
+    form.validate(Map[String, Seq[String]]()) match {
+      case Invalid(errors) => errors.foreach(m => assert(!m.toLowerCase.contains("xx")))
+      case Valid(_) => fail("Form should not validate with no value for select field")
+    }
+
+    val rendered = html(form, values = Map("favorite-fruit" -> "orange"))
     val opt = (rendered \\ "option").filter(o => getAttr(o, "value").contains("orange")).head
     assert(getAttr(opt, "selected").isDefined)
     assert(getAttr(opt, "selected").contains("selected"))
@@ -157,50 +160,45 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("basic validation") {
 
-    val f = new WebForm2[String, URL] {
-      def fields = (
-        Field(label = "Your name", controls.TextLine),
-        Field(label = "Your website", controls.URL()))
-    }
+    val f = WebForm2(
+      Field(label = "Name", controls.TextLine),
+      Field(label = "Website", controls.URL()))
 
-    assert(f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("https://test.net"))).isValid)
-    assert(!f.validate(Map("n" -> Seq("Fred"), "website" -> Seq("nada"))).isValid)
+    assert(f.validate(Map("name" -> Seq("Fred"), "website" -> Seq("https://test.net"))).isValid)
+    assert(!f.validate(Map("name" -> Seq("Fred"), "website" -> Seq("nada"))).isValid)
   }
 
   test("whitespace is trimmed and whitespace-only is considered empty, for text fields") {
 
-    val f = new WebForm1[String] {
-      def fields = Field(label = "Zodiac Sign", controls.TextLine)
-    }
+    val f = WebForm1(Field(label = "Zodiac Sign", controls.TextLine))
 
-    assert(!f.validate(Map("sign" -> Seq(" "))).isValid)
-    assert(f.validate(Map("sign" -> Seq("Pisces"))).isValid)
+    assert(!f.validate(Map("zodiac-sign" -> Seq(" "))).isValid)
+    assert(f.validate(Map("zodiac-sign" -> Seq("Pisces"))).isValid)
 
-    f.validate(Map("sign" -> Seq("\tGemini "))) match {
+    f.validate(Map("zodiac-sign" -> Seq("\tGemini "))) match {
       case Valid(v) => assert(v == "Gemini")
       case _ => fail("Form did not validate!")
     }
+
+//    assert(getInput(html(f), "temp") != null)
   }
 
   test("cross-field validations") {
-    val form = new WebForm2[String, String] {
-      protected def fields = (
+    val form = new WebForm2(
         Field(label = "Password",         controls.Password(minLength = 3)),
-        Field(label = "Confirm Password", controls.Password(minLength = 3)))
+        Field(label = "Confirm", controls.Password(minLength = 3))) {
       override protected def crossFieldValidations = Seq(
         { case (p1, p2) => if (p1 != p2) Some("Passwords must match.") else None }
       )
     }
 
-    assert(!form.validate(Map("pass1" -> Seq("something"), "pass2" -> Seq("other.thing"))).isValid)
-    assert(form.validate(Map("pass1" -> Seq("same.thing"), "pass2" -> Seq("same.thing"))).isValid)
+    assert(!form.validate(Map("password" -> Seq("something"), "confirm" -> Seq("other.thing"))).isValid)
+    assert(form.validate(Map("password" -> Seq("same.thing"), "confirm" -> Seq("same.thing"))).isValid)
   }
 
   test("use of 'Optional' field") {
 
-    val f = new WebForm1[Option[InternetAddress]] {
-      def fields = Field(label = "Email", controls.Optional(controls.EmailAddr))
-    }
+    val f = new WebForm1(Field(label = "Email", controls.Optional(controls.EmailAddr)))
 
     val noParams = Map[String, Seq[String]]()
     assert(f.validate(noParams).isValid)
@@ -212,17 +210,14 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("use of `HiddenInput`") {
 
-    val f = new WebForm2[String, String] {
-      def fields = (
+    val f = WebForm2(
         Field(label = "x", controls.HiddenInput),
-        Field(label = "Fav color", controls.TextLine))
-    }
+        Field(label = "Color", controls.TextLine))
 
     assert(f.validate(Map("x" -> "whatever", "color" -> "Orange")).isValid)
 
-    val renderer = new bootstrap.HorizontalForm
     val html = f.html(action = "/here", method = "post",
-      renderer, Map("x" -> Seq("hidden value!"))).head
+      new DefaultFormRenderer[Field], Map("x" -> Seq("hidden value!"))).head
     assert((html \\ "label").length == 1)
   }
 
@@ -237,9 +232,7 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("validate using `URLField`") {
 
-    val f = new WebForm1[URL] {
-      def fields = Field(label = "Your website", controls.URL())
-    }
+    val f = new WebForm1(Field(label = "Your website", controls.URL()))
 
     val invalid = Seq(
       "my-site", "//impossible. com", "www.//Theimprovement. Com", "jokes .org",
@@ -265,14 +258,12 @@ class FormTests extends FunSuite with FormTestHelpers {
 
   test("rendering using `FormRenderer` instance") {
 
-    val renderer = new bootstrap.HorizontalForm
-    val form = new WebForm2[String, URL] {
-      def fields = (
-        Field(label = "Name", controls.TextLine),
-        Field(label = "Website", controls.URL()))
-    }
+    val renderer = new DefaultFormRenderer[Field]
+    val form = WebForm2(
+      Field(label = "Name", controls.TextLine),
+      Field(label = "Website", controls.URL()))
 
-    val formHTML = html(form, renderer).head
+    val formHTML = form.html(action = "/submit", method = "POST", renderer, params = Map()).head
     assert(getAttr(formHTML, "action").isDefined)
     assert(getAttr(formHTML, "method").map(_.toLowerCase).contains("post"))
     assert((formHTML \\ "button").length > 0)
@@ -283,13 +274,11 @@ class FormTests extends FunSuite with FormTestHelpers {
     assert(getAttr(websiteInput, "value").contains("www.sing.com"))
   }
 
-  // `WebForm1` is a bit of an edge-case, and does not use the same "macro" (code generation)
-  // as `WebForm2` and on up.
+  // `WebForm1` is a bit of an edge-case, and requires slightly different logic from
+  // our "macro" (code generation) as that required for `WebForm2` and on up.
   test("`WebForm1` works properly") {
 
-    val f = new WebForm1[String] {
-      val fields = Field(label = "Temperature", controls.TextLine)
-    }
+    val f = new WebForm1(Field(label = "Temperature", controls.TextLine))
 
     // Previously, an issue with the way we defined `WebForm1` (using a val in place of def) led
     // to a `NullPointerException`.
@@ -298,31 +287,59 @@ class FormTests extends FunSuite with FormTestHelpers {
       fail(s"Rendering the `html` should not lead to exception (${e.getClass.getName})")
     }
 
-    assert(getInput(html(f), "temp") != null)
+    assert(getInput(html(f), "temperature") != null)
   }
 
   test("code for WebFormX classes (e.g. `WebForm2`, `WebForm3`, etc) is properly generated") {
-    val form = new WebForm4[String, URL, InternetAddress, String] {
-      def fields = (
-        Field(label = "Field 1", controls.Textarea),
-        Field(label = "Field 2", controls.URL()),
-        Field(label = "Field 3", controls.EmailAddr),
-        Field(label = "Field 4", controls.TextLine))
-    }
+    val form = new WebForm4(
+      Field(label = "Field 1", controls.Textarea),
+      Field(label = "Field 2", controls.URL()),
+      Field(label = "Field 3", controls.EmailAddr),
+      Field(label = "Field 4", controls.TextLine))
     html(form)
   }
 
-  private def html(form: BaseWebForm[_], values: Map[String, String] = Map()): xml.NodeSeq =
-    html(form, renderer = new BasicForm, values)
+  class DefaultFormRenderer[F[_] <: Field[_]] extends FormRenderer[F] {
 
-  private def html(form: BaseWebForm[_], renderer: FormRenderer): xml.NodeSeq =
-    html(form, renderer, values = Map())
+    def formElem(labeledControls: xml.NodeSeq): xml.Elem =
+      <form>
+        { labeledControls }
+        { submitSection }
+      </form>
 
-  private def html(form: BaseWebForm[_], renderer: FormRenderer,
+    def labeledControl(field: F[_], control: xml.NodeSeq): xml.NodeSeq =
+      if (isCheckbox(control)) {
+        <div class="checkbox"> <label>{ control } { field.label }</label> </div>
+      } else {
+
+        val widget =
+          if (isFileInput(control))
+            control
+          else
+            withAttr(control, "class", "form-control")
+
+        <div class="form-group">
+          <label>{ field.label }</label> { widget }
+        </div>
+      }
+
+    protected def submitSection: xml.NodeSeq =
+      <button type="submit" class="btn btn-primary">{ submitButtonLabel }</button>
+
+    protected def submitButtonLabel: String = "Submit"
+  }
+
+  private def html[F[_] <: Field[_], T](form: BaseWebForm[F, T], values: Map[String, String] = Map()): xml.NodeSeq =
+    html(form, renderer = new DefaultFormRenderer, values)
+
+  private def html[F[_] <: Field[_], T](form: BaseWebForm[F, T], renderer: FormRenderer[F]): xml.NodeSeq =
+    html(form = form, renderer = renderer, values = Map())
+
+  private def html[F[_] <: Field[_], T](form: BaseWebForm[F, T], renderer: FormRenderer[F],
                    values: Map[String, String]): xml.NodeSeq =
-    form.html(action = "/post-here", method = "POST", renderer, values)
+    form.html(action = "/post-here", method = "POST", renderer = renderer, params = values)
 
-  protected def randomInt(max: Int) =
+  protected def randomInt(max: Int): Int =
     scala.util.Random.nextInt(max) + 1
 
   private implicit def toParams(map: Map[String, String]): Map[String, Seq[String]] =

@@ -11,6 +11,11 @@ abstract class SelectField[T](options: Seq[T]) extends TextBasedInput[T] {
     */
   protected def optionLabel(opt: T): String
 
+  /** What validation error should be displayed when no value has been provided? Something like
+   * "Please select a value for [x]." might be appropriate.
+    */
+  protected def errorOnEmpty: String
+
   override def html(value: Option[T] = None): xml.NodeSeq =
     //<select name={ name } class="form-control">
     <select>
@@ -21,7 +26,7 @@ abstract class SelectField[T](options: Seq[T]) extends TextBasedInput[T] {
 //    val valueOfSelected = params(name).headOption.getOrElse("")
     options.find(o => optionValue(o) == value) match {
       case Some(v) => Right(v)
-      case None => Left(s"Please select a value for XXX.")
+      case None => Left(errorOnEmpty)
     }
   }
 
