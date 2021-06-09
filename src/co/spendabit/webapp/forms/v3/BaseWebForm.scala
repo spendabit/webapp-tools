@@ -8,6 +8,7 @@ import co.spendabit.webapp.forms.v3.controls.{HiddenInput, TextBasedInput}
 import javax.servlet.http.HttpServletRequest
 import org.apache.commons.fileupload.FileItem
 
+import scala.language.higherKinds
 import scala.xml.NodeSeq
 
 abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
@@ -23,6 +24,9 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
 
   protected def widgetsHTML(values: Option[T]): Seq[xml.NodeSeq]
 
+  protected def fieldNameGenerator: FieldNameGenerator[F] =
+    new DefaultNameGenerator[F]
+
   type ValidationError = String
   protected def crossFieldValidations: Seq[T => Option[ValidationError]] = Seq()
 
@@ -32,26 +36,18 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
     else
       co.spendabit.webapp.forms.util.populateFormFields(formElem, params)
 
-  object DefaultNamingStrategy extends FieldNameGenerator[F] {
-    def withNames(fields: Seq[F[_]]): Seq[(String, F[_])] =
-      fields.map { f =>
-        val name: String = f.label.toLowerCase.map(c => if (c.isLetterOrDigit) c else '-')
-        name -> f
-      }
-  }
-
   def html(action: String, method: String, renderer: FormRenderer[F],
            params: Map[String, Seq[String]]): xml.NodeSeq =
     co.spendabit.webapp.forms.util.populateFormFields(
-      html(action = action, method = method, renderer, DefaultNamingStrategy), params)
+      html(action = action, method = method, renderer), params)
 
-  def html(action: String, method: String, renderer: FormRenderer[F],
-           nameGenerator: FieldNameGenerator[F]): xml.NodeSeq = {
+  def html(action: String, method: String, renderer: FormRenderer[F]): xml.NodeSeq = {
     val fieldsMarkup = {
 
-      val widgets = widgetsHTML(None) // XXX
+      val fieldsWithNamesAndWidgets = fieldNameGenerator.withNames(fieldsSeq).
+        zip(widgetsHTML(None)).map(f => (f._1._2, f._1._1, f._2))
       val combined: Seq[xml.NodeSeq] =
-        nameGenerator.withNames(fieldsSeq).zip(widgets).map { case ((name, field), controlSansName) =>
+        fieldsWithNamesAndWidgets.map { case (field, name, controlSansName) =>
           val controlWithName = withAttr(controlSansName.asInstanceOf[xml.Elem], "name", name)
           if (field.control == HiddenInput) {
             controlWithName
@@ -123,9 +119,7 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
   def validate(params: Map[String, Seq[String]],
                fileItems: Seq[FileItem] = Seq()): ValidationResult[T] = {
 
-    val nameGenerator = DefaultNamingStrategy
-
-    val validationResults = nameGenerator.withNames(fieldsSeq).map { case (name, f) =>
+    val validationResults = fieldNameGenerator.withNames(fieldsSeq).map { case (name, f) =>
       f.control match {
         case c: TextBasedInput[T] =>
           c.validate(params.get(name).flatMap(_.headOption).getOrElse(""))

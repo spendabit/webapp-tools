@@ -1,5 +1,7 @@
 package co.spendabit.webapp.forms.v3
 
+import scala.language.higherKinds
+
 /** An implementation of `FieldNameGenerator` should provide a consistent way of generating
   * names for a given list of fields.
   */
