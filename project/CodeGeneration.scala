@@ -4,7 +4,7 @@ object CodeGeneration {
 
   case class GeneratedScalaFile(path: File, content: String)
 
-  val generatedFiles: Seq[GeneratedScalaFile] = webForms :+ versionFile
+  val generatedFiles: Seq[GeneratedScalaFile] = webForms :+ versionFile :+ v3Constructors
 
   private def versionFile =
     GeneratedScalaFile(new File("co/spendabit/version.scala"),
@@ -12,6 +12,31 @@ object CodeGeneration {
         s"""
           |package co.spendabit
           |object version { def get = "${build.libVersion}" }""".stripMargin.trim)
+
+  private def v3Constructors = GeneratedScalaFile(
+    new File("co/spendabit/webapp/forms/v3/Form.scala"),
+    s"""
+      |package co.spendabit.webapp.forms.v3
+      |
+      |import co.spendabit.webapp.forms.controls.Field
+      |import co.spendabit.webapp.forms.v3._
+      |
+      |object Form {
+      |  ${ Range.inclusive(1, 22).map { n => constructor(n) }.map("  " + _).mkString("\n") }
+      |}
+      |""".stripMargin)
+
+  private def constructor(n: Int): String = {
+
+    val typeParamNames = Range.inclusive('A', 'Z').map(_.toChar).take(n)
+    val typeParamsStr = typeParamNames.mkString(", ")
+    val methodParams = typeParamNames.map(t => s"field$t: FieldT[$t]").mkString(", ")
+
+    s"""
+      |def apply[FieldT[X] <: Field[X], $typeParamsStr]($methodParams) =
+      |    WebForm$n(${ typeParamNames.map("field" + _).mkString(", ") })
+      |""".stripMargin
+  }
 
   // XXX: Surely this can be better done with Scala's macros, however, I still need to learn
   // XXX: how to use those... :P

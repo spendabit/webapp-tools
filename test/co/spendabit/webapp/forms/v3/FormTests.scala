@@ -1,5 +1,6 @@
 package co.spendabit.webapp.forms.v3
 
+import co.spendabit.webapp.forms.v3
 import co.spendabit.webapp.forms.v3.controls.{Control, EmailAddr, Password, Textarea}
 import co.spendabit.webapp.forms.{Invalid, Valid}
 import org.scalatest.FunSuite
@@ -297,6 +298,24 @@ class FormTests extends FunSuite with FormTestHelpers {
       Field(label = "Field 3", controls.EmailAddr),
       Field(label = "Field 4", controls.TextLine))
     html(form)
+  }
+
+  test("constructing form using new, `Form` constructor methods") {
+
+    val f = v3.Form(
+      Field(label = "Email", controls.EmailAddr),
+      Field(label = "Name", controls.TextLine),
+      Field(label = "Spiel", controls.Textarea))
+
+    val enteredValues = Map("email" -> "dave@form-fun.com", "name" -> "Dave", "spiel" -> "Ok.")
+    assert(f.validate(enteredValues).isValid)
+    assert(!f.validate(enteredValues.filterKeys(_ != "email")).isValid)
+
+    val f2 = v3.Form(
+      Field(label = "Color", controls.TextLine),
+      Field(label = "Shape", controls.TextLine))
+
+    assert(f2.validate(Map("color" -> "red", "shape" -> "triangle")).isValid)
   }
 
   class DefaultFormRenderer[F[_] <: Field[_]] extends FormRenderer[F] {
