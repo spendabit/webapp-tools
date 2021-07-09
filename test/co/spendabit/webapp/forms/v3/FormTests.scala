@@ -101,17 +101,17 @@ class FormTests extends FunSuite with FormTestHelpers {
   test("functionality of checkbox field") {
 
     val form = WebForm1(
-      Field(label = "Check here if you like Moesha.", controls.Checkbox))
+      Field(label = "Vegetarian", controls.Checkbox))
 
-    val box = getControl(html(form), "moesha")
+    val box = getControl(html(form), "vegetarian")
     assert(getAttr(box, "checked").isEmpty,
       "Checkbox should not have 'checked' attribute by default")
 
-    val boxChecked = getControl(html(form, Map("moesha" -> "on")), "moesha")
+    val boxChecked = getControl(html(form, Map("vegetarian" -> "on")), "vegetarian")
     assert(getAttr(boxChecked, "checked").isDefined,
       "Checkbox should retain state when it is 'on'")
 
-    val validatedWithCheck = form.validate(Map("moesha" -> Seq("on")))
+    val validatedWithCheck = form.validate(Map("vegetarian" -> Seq("on")))
     assert(validatedWithCheck.isValid,
       "Checkbox should validate successfully if it's checked (\"on\")")
     assert(validatedWithCheck.asInstanceOf[Valid[Boolean]].values,
