@@ -59,9 +59,9 @@ pomExtra :=
 
 sonatypeProfileName := "co.spendabit"
 
-scalaSource in Compile := { (baseDirectory in Compile)(_ / "src") }.value
+(Compile / scalaSource) := { (Compile / baseDirectory)(_ / "src") }.value
 
-scalaSource in Test := { (baseDirectory in Test)(_ / "test") }.value
+(Test / scalaSource) := { (Test / baseDirectory)(_ / "test") }.value
 
 unmanagedClasspath in Test += baseDirectory.value / "test" / "resources"
 
