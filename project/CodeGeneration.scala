@@ -21,6 +21,8 @@ object CodeGeneration {
       |import co.spendabit.webapp.forms.controls.Field
       |import co.spendabit.webapp.forms.v3._
       |
+      |import scala.language.higherKinds
+      |
       |object Form {
       |  ${ Range.inclusive(1, 22).map { n => constructor(n) }.map("  " + _).mkString("\n") }
       |}
