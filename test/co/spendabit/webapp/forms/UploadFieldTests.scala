@@ -102,7 +102,7 @@ class UploadFieldTests extends FunSuite with AdvancedWebBrowsing with FormTestHe
     private val uploadFormV3 =
       new v3.WebForm2(
         v3.Field("Email address", v3.controls.EmailAddr),
-        v3.Field("Photograph", v3.controls.FileUploadInput()))
+        v3.Field("Photograph", v3.controls.FileUpload()))
       {
         override protected def uploadConfig: Option[UploadConfig] = Some(
           UploadConfig(maxFileSize = 1024 * 1024,

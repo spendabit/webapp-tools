@@ -4,7 +4,7 @@ import org.apache.commons.fileupload.FileItem
 
 import scala.xml.NodeSeq
 
-class FileUploadInput extends FileBasedInput[FileItem] {
+class FileUpload extends FileBasedInput[FileItem] {
 
   def validate(fileItem: Option[FileItem]): Either[String, FileItem] = {
     fileItem match {
@@ -17,6 +17,6 @@ class FileUploadInput extends FileBasedInput[FileItem] {
     <input type="file" />
 }
 
-object FileUploadInput {
-  def apply() = new FileUploadInput
+object FileUpload {
+  def apply() = new FileUpload
 }
