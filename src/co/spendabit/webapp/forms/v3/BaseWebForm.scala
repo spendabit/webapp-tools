@@ -3,7 +3,7 @@ package co.spendabit.webapp.forms.v3
 import co.spendabit.webapp.forms.{Invalid, Valid, ValidationResult}
 import co.spendabit.webapp.{MultipartFormHandling, UploadConfig}
 import co.spendabit.webapp.forms.util.{withAttr, withAttrs}
-import co.spendabit.webapp.forms.v3.controls.{HiddenInput, TextBasedInput}
+import co.spendabit.webapp.forms.v3.controls.{FileBasedInput, HiddenInput, TextBasedInput}
 
 import javax.servlet.http.HttpServletRequest
 import org.apache.commons.fileupload.FileItem
@@ -123,6 +123,8 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
       f.control match {
         case c: TextBasedInput[T] =>
           c.validate(params.get(name).flatMap(_.headOption).getOrElse(""))
+        case c: FileBasedInput[T] =>
+          c.validate(fileItems.find(_.getFieldName == name))
       }
     }
 

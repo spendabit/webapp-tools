@@ -2,12 +2,12 @@ package co.spendabit.webapp.forms
 
 import java.io.{File, InputStream}
 import scala.util.Random
-
 import co.spendabit.test.scalatra.AdvancedWebBrowsing
 import co.spendabit.webapp.UploadConfig
 import co.spendabit.webapp.forms.controls.{EmailField, FileUploadInput, TextInput}
 import co.spendabit.webapp.forms.ui.bootstrap
 import co.spendabit.webapp.forms.v2._
+import co.spendabit.webapp.forms.v3.{DefaultFormRenderer, Field}
 import javax.mail.internet.InternetAddress
 import org.apache.commons.fileupload.FileItem
 import org.scalatest.FunSuite
@@ -25,11 +25,21 @@ class UploadFieldTests extends FunSuite with AdvancedWebBrowsing with FormTestHe
     val contentLength: Long = content.length
   }
 
-  test("functionality of `FileUploadInput`") {
+  test("functionality of `FileUploadInput`, v2") {
 
-    get("/upload-form") {
-      post("/upload-form", params = Seq("your-email" -> "mog@fantasy.net"),
+    get("/upload-form-v2") {
+      post("/upload-form-v2", params = Seq("your-email" -> "mog@fantasy.net"),
            files = Seq("photo" -> fileToUpload)) {
+        assert(status == 200)
+      }
+    }
+  }
+
+  test("functionality of `FileUploadInput`, v3") {
+
+    get("/upload-form-v3") {
+      post("/upload-form-v3", params = Seq("email-address" -> "mog@fantasy.net"),
+           files = Seq("photograph" -> fileToUpload)) {
         assert(status == 200)
       }
     }
@@ -47,7 +57,7 @@ class UploadFieldTests extends FunSuite with AdvancedWebBrowsing with FormTestHe
 
   lazy val testServlet = new ScalatraServlet {
 
-    val uploadForm = new WebForm2[InternetAddress, FileItem] {
+    private val uploadFormV2 = new WebForm2[InternetAddress, FileItem] {
 
       override protected def uploadConfig = Some(
         UploadConfig(maxFileSize = 1024 * 1024,
@@ -56,26 +66,61 @@ class UploadFieldTests extends FunSuite with AdvancedWebBrowsing with FormTestHe
 
       def method = POST
 
-      def action = "/upload-form"
+      def action = "/upload-form-v2"
 
       def fields =
         (EmailField(label = "Email address", name = "your-email"),
           FileUploadInput(label = "Your photo", name = "photo"))
     }
 
-    get("/upload-form") {
+    get("/upload-form-v2") {
       <html>
         <body>
-          { uploadForm.html }
+          { uploadFormV2.html }
         </body>
       </html>
     }
 
-    post("/upload-form") {
+    post("/upload-form-v2") {
 
       contentType = "text/plain"
 
-      uploadForm.validate(request) match {
+      uploadFormV2.validate(request) match {
+        case Valid((email, photo)) =>
+          assert(photo.getContentType == fileToUpload.contentType)
+          assert(photo.getSize == fileToUpload.contentLength)
+          assert(photo.getString.take(10).contains("JFIF"))
+          assert(email.getAddress == "mog@fantasy.net")
+          status = 200
+          "Got it!"
+        case Invalid(errors) =>
+          status = 400
+          s"No good! Errors: ${errors.mkString(", ")}"
+      }
+    }
+
+    private val uploadFormV3 =
+      new v3.WebForm2(
+        v3.Field("Email address", v3.controls.EmailAddr),
+        v3.Field("Photograph", v3.controls.FileUploadInput()))
+      {
+        override protected def uploadConfig: Option[UploadConfig] = Some(
+          UploadConfig(maxFileSize = 1024 * 1024,
+            saveToDiskThreshold = fileToUpload.contentLength.toInt +
+              Random.nextInt(500) - Random.nextInt(500)))
+      }
+
+    get("/upload-form-v3") {
+      val formHtml = uploadFormV3.html(action = "/upload-form-v3", method = "post",
+        new DefaultFormRenderer[Field])
+      <html><body>{ formHtml }</body></html>
+    }
+
+    post("/upload-form-v3") {
+
+      contentType = "text/plain"
+
+      uploadFormV3.validate(request) match {
         case Valid((email, photo)) =>
           assert(photo.getContentType == fileToUpload.contentType)
           assert(photo.getSize == fileToUpload.contentLength)
