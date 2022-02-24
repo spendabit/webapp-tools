@@ -17,9 +17,14 @@ class URLFieldTests extends FunSuite {
   }
 
   test("a hostname with a TLD is required") {
+
     assert(!validates("my-hostname"))
     assert(!validates("my-hostname.a"))
     assert(validates("my-hostname.us"))
+
+    // This one is slightly questionable, as "alex274" could theoretically be a TLD (however
+    // unlikely): https://stackoverflow.com/questions/9071279/
+    assert(!validates("http://www.alex274"))
   }
 
   test("URL with a path is accepted") {

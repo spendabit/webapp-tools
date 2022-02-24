@@ -24,7 +24,9 @@ case class URLField(override val label: String = "URL", override val name: Strin
     try {
 
       val url = new URL(withProtocol)
-      val hasTLD = url.getHost.contains('.') && url.getHost.split('.').last.length > 1
+      val hostParts = url.getHost.split('.')
+      val hasTLD = url.getHost.contains('.') && hostParts.last.length > 1 &&
+        !hostParts.last.exists(_.isDigit)
       val hasInvalidCharsInHostname = {
         val h = if (s == withProtocol) url.getHost else s.split('/').head
         h.exists(c => !c.isLetterOrDigit && c != '-' && c != '.')
