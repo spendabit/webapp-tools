@@ -145,9 +145,8 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
       readMultipartFormData(request, conf)
     }.getOrElse {
       val ct = request.getContentType.split(';').map(_.trim).head
-      log.error(s"Received multipart ($ct) request, but `uploadConfig` " +
+      throw new IllegalStateException(s"Received multipart ($ct) request, but `uploadConfig` " +
         s"is not set; no form values will be decoded")
-      Seq()
     }
 
     (items.filter(_.isFormField).map { p => p.getFieldName -> Seq(p.getString)}.toMap,
