@@ -3,9 +3,9 @@ package co.spendabit.webapp.forms.ui.bootstrap
 import co.spendabit.XMLHelpers
 import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.v2.{BaseWebForm, WebForm1}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class HorizontalFormTests extends FunSuite with XMLHelpers {
+class HorizontalFormTests extends AnyFunSuite with XMLHelpers {
 
   test("column widths are properly calculated/rendered") {
 

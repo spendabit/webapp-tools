@@ -1,8 +1,8 @@
 package co.spendabit.http.bots
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class BotDetectionTests extends FunSuite {
+class BotDetectionTests extends AnyFunSuite {
 
   test("detecting various and sundry bot User-Agent strings") {
     val botUAs = Seq(

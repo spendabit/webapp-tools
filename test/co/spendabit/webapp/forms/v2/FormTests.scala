@@ -7,9 +7,9 @@ import javax.mail.internet.InternetAddress
 import co.spendabit.webapp.forms.{Invalid, Valid}
 import co.spendabit.webapp.forms.controls._
 import co.spendabit.webapp.forms.ui.bootstrap
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class FormTests extends FunSuite with FormTestHelpers {
+class FormTests extends AnyFunSuite with FormTestHelpers {
 
   test("basic form rendering") {
 

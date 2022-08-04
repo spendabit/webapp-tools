@@ -1,8 +1,8 @@
 package co.spendabit.webapp.forms.controls
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class URLFieldTests extends FunSuite {
+class URLFieldTests extends AnyFunSuite {
 
   test("protocol does not need to be provided if 'requireProtocol' flag is false") {
     val result = getField(requireProtocol = false).validate("www.my-website.com")

@@ -1,4 +1,4 @@
 
 package object build {
-  val libVersion = "0.8.2"
+  val libVersion = "0.9.0"
 }

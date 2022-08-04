@@ -3,12 +3,12 @@ package co.spendabit.webapp.forms.v3
 import co.spendabit.webapp.forms.v3
 import co.spendabit.webapp.forms.v3.controls.{Control, EmailAddr, Password, Textarea}
 import co.spendabit.webapp.forms.{Invalid, Valid}
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import java.time.LocalDateTime
 import scala.language.higherKinds
 
-class FormTests extends FunSuite with FormTestHelpers {
+class FormTests extends AnyFunSuite with FormTestHelpers {
 
   test("basic form rendering") {
 

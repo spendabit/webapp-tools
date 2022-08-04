@@ -10,10 +10,10 @@ import co.spendabit.webapp.forms.v2._
 import co.spendabit.webapp.forms.v3.{DefaultFormRenderer, Field}
 import javax.mail.internet.InternetAddress
 import org.apache.commons.fileupload.FileItem
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatra.ScalatraServlet
 
-class UploadFieldTests extends FunSuite with AdvancedWebBrowsing with FormTestHelpers {
+class UploadFieldTests extends AnyFunSuite with AdvancedWebBrowsing with FormTestHelpers {
 
   addServlet(testServlet, "/*")
 

@@ -1,10 +1,10 @@
 package co.spendabit.test.scalatra
 
 import org.jsoup.Jsoup
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatra.ScalatraServlet
 
-class AdvancedWebBrowsingTests extends FunSuite with AdvancedWebBrowsing {
+class AdvancedWebBrowsingTests extends AnyFunSuite with AdvancedWebBrowsing {
 
   addServlet(classOf[TestServlet], "/*")
 
@@ -234,7 +234,8 @@ class TestServlet extends ScalatraServlet {
   }
 
   post("/echo-params") {
-    plainText(params.map(p => p._1 + ": " + p._2).mkString("\n"))
+    try plainText(params.toMap.map(p => p._1 + ": " + p._2).mkString("\n"))
+    catch { case _: NoSuchElementException => plainText("") }
   }
 
   get("/form-with-no-submit-button") {

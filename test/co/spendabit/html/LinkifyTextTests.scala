@@ -1,8 +1,8 @@
 package co.spendabit.html
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class LinkifyTextTests extends FunSuite {
+class LinkifyTextTests extends AnyFunSuite {
 
   test("linkifying text") {
 

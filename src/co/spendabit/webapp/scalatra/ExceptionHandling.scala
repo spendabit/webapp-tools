@@ -60,7 +60,8 @@ trait ExceptionHandling extends ServletBase {
             "  " + name + ": " + value.toString
           }.mkString("\n") + "\n\n" +
           "And all request headers:\n" +
-          request.headers.map(h => "  " + h._1 + ": " + h._2).mkString("\n") + "\n\n" +
+          request.headers.names.map(h => "  " + h + ": " + request.header(h).getOrElse("N/A")).
+            mkString("\n") + "\n\n" +
           "Request body:\n" + request.body
 
       sendExceptionNotification(msgBody)
