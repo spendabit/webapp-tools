@@ -14,8 +14,8 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
 
     val f = WebForm3(
       Field(label = "Email address", EmailAddr),
-       Field(label = "Password", Password(minLength = 7)),
-       Field(label = "Your story", Textarea))
+      Field(label = "Password", Password(minLength = 7)),
+      Field(label = "Your story", Textarea))
     val markup = html(f)
 
     assert(containsInputWithName(markup, "email-address"))
