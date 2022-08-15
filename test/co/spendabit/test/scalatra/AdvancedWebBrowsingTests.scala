@@ -8,6 +8,14 @@ class AdvancedWebBrowsingTests extends AnyFunSuite with AdvancedWebBrowsing {
 
   addServlet(classOf[TestServlet], "/*")
 
+  test("navigating between pages via `clickLinkHavingText`") {
+    get("/page-1") {
+      clickLinkHavingText("Check it out", {
+        assert(body.contains("this is page #2"))
+      })
+    }
+  }
+
   test("AdvancedWebBrowsing.submitForm uses HTTP 'method' specified in form attribute") {
 
     get("/form-using-get") {
@@ -182,6 +190,14 @@ class AdvancedWebBrowsingTests extends AnyFunSuite with AdvancedWebBrowsing {
 }
 
 class TestServlet extends ScalatraServlet {
+
+  get("/page-1") {
+    page(<p>We have multiple pages. <a href="/page-2">Check it out!</a></p>)
+  }
+
+  get("/page-2") {
+    page(<p>Believe it or not, this is page #2.</p>)
+  }
 
   get("/form-using-:method") {
     page(<form method={ params("method") } action="/submit">

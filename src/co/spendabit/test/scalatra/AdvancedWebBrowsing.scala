@@ -17,6 +17,38 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
   protected def selectElems(selector: String): Seq[Element] =
     Jsoup.parse(response.body).select(selector)
 
+  protected def bodyAsXML: xml.NodeSeq =
+    if (body.trim.isEmpty)
+      fail("'body' contains no content!")
+    else
+      xml.parsing.XhtmlParser(scala.io.Source.fromString(body))
+
+  protected def clickLinkHavingText[T](text: String): Unit =
+    clickLinkHavingText(text, f = {})
+
+  protected def clickLinkHavingText[T](text: String, f: => T): Unit =
+    clickLinkHavingText(text, followRedirects = true, f)
+
+  protected def clickLinkHavingText[T](text: String, followRedirects: Boolean,
+                                       f: => T): Unit = {
+    linksHavingText(text) match {
+      case Seq() => fail(s"No links found having text '$text'")
+      case Seq(e) => clickLink(e, followRedirects)(f)
+      case _ => fail(s"Multiple links found having text '$text'")
+    }
+  }
+
+  protected def clickLink(a: xml.Node, followRedirects: Boolean = true)(f: => Unit): Unit = a match {
+    case e: xml.Elem if e.label == "a" =>
+      val path = e.attribute("href").get.head.text
+      if (path.matches("^[a-zA-Z]+:")) fail("Link is to remote location: " + e)
+      if (followRedirects) getFollowingRedirects(path)(f) else get(path)(f)
+    case e => fail("Expected to get 'a' element, but got this: " + e)
+  }
+
+  protected def linksHavingText(text: String): xml.NodeSeq =
+    bodyAsXML \\ "a" filter(_.text.contains(text))
+
   /** Find the <form> element matching the given `selector`, failing the test-case if no
     * such form is found.
     */
@@ -162,7 +194,8 @@ trait AdvancedWebBrowsing extends ScalatraSuite with jsoup.ImplicitConversions {
     }
   }
 
-  protected def isRedirectResponse = status >= 300 && status < 400
+  protected def isRedirectResponse: Boolean =
+    status >= 300 && status < 400
 
   protected def redirectLocation: String = {
     val location = header.getOrElse("Location",
