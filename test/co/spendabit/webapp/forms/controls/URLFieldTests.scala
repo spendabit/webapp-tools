@@ -36,6 +36,15 @@ class URLFieldTests extends AnyFunSuite {
     assert(!validates("jpopper@go-big.co.uk/something"))
   }
 
+  test("path with no hostname does not validate") {
+    assert(!validates("../..//../..//windows/win.ini"))
+    assert(!validates("/index.html"))
+    assert(!validates("/some/where"))
+    assert(!validates("some/where/else"))
+    assert(!validates("johnson"))
+    assert(!validates("./path/to/page"))
+  }
+
   test("does not allow two dots in a row") {
     assert(!validates("https://bogus..com"))
     assert(!validates("http://.whoa.net"))

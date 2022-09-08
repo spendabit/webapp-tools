@@ -23,6 +23,9 @@ case class URLField(override val label: String = "URL", override val name: Strin
 
     try {
 
+      if (s.startsWith("."))
+        throw new MalformedURLException
+
       val url = new URL(withProtocol)
       val hostParts = url.getHost.split('.')
       val hasTLD = url.getHost.contains('.') && hostParts.last.length > 1 &&
