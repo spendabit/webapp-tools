@@ -45,8 +45,12 @@ class URLFieldTests extends AnyFunSuite {
     assert(!validates("./path/to/page"))
   }
 
-  test("does not allow two dots in a row") {
+  test("does not allow for spurious dots in hostname") {
+
+    info("does not allow two dots in a row")
     assert(!validates("https://bogus..com"))
+
+    info("does not allow spurious dot at beginning of hostname")
     assert(!validates("http://.whoa.net"))
   }
 
