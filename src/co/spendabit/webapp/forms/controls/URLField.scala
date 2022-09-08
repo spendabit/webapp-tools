@@ -9,11 +9,11 @@ case class URLField(override val label: String = "URL", override val name: Strin
   /** If `requireProtocol` is false, then we use a plain-old 'text' input, so web-browsers will
     * allow users to enter values like "www.my-site.com".
     */
-  def inputType = if (requireProtocol) "url" else "text"
+  def inputType: String = if (requireProtocol) "url" else "text"
 
   def valueAsString(value: URL): String = value.toString
 
-  def validate(s: String) = {
+  def validate(s: String): Either[String, URL] = {
 
     val withProtocol =
       if (requireProtocol || s.matches("https?:.*"))
