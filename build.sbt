@@ -66,11 +66,11 @@ sonatypeProfileName := "co.spendabit"
 unmanagedClasspath in Test += baseDirectory.value / "test" / "resources"
 
 // Use "-oF" switch to get full stack-traces.
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oS")
+(Test / testOptions) += Tests.Argument(TestFrameworks.ScalaTest, "-oS")
 
-sourceGenerators in Compile += Def.task {
+(Compile / sourceGenerators) += Def.task {
   CodeGeneration.generatedFiles.map { f =>
-    val file = (sourceManaged in Compile).value / f.path.toString
+    val file = (Compile / sourceManaged).value / f.path.toString
     IO.write(file, f.content)
     file
   }
