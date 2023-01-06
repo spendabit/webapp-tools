@@ -39,13 +39,17 @@ abstract class BaseWebForm[F[_] <: Field[_], T] extends MultipartFormHandling {
   def html(action: String, method: String, renderer: FormRenderer[F],
            params: Map[String, Seq[String]]): xml.NodeSeq =
     co.spendabit.webapp.forms.util.populateFormFields(
-      html(action = action, method = method, renderer), params)
+      html(action = action, method = method, renderer, values = None), params)
 
-  def html(action: String, method: String, renderer: FormRenderer[F]): xml.NodeSeq = {
+  def html(action: String, method: String, renderer: FormRenderer[F]): xml.NodeSeq =
+    this.html(action = action, method = method, renderer = renderer, values = None)
+
+  def html(action: String, method: String, renderer: FormRenderer[F],
+           values: Option[T]): xml.NodeSeq = {
     val fieldsMarkup = {
 
       val fieldsWithNamesAndWidgets = fieldNameGenerator.withNames(fieldsSeq).
-        zip(widgetsHTML(None)).map(f => (f._1._2, f._1._1, f._2))
+        zip(widgetsHTML(values)).map(f => (f._1._2, f._1._1, f._2))
       val combined: Seq[xml.NodeSeq] =
         fieldsWithNamesAndWidgets.map { case (field, name, controlSansName) =>
           val controlWithName = withAttr(controlSansName.asInstanceOf[xml.Elem], "name", name)

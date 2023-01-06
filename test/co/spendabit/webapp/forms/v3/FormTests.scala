@@ -6,6 +6,7 @@ import co.spendabit.webapp.forms.{Invalid, Valid}
 import org.scalatest.funsuite.AnyFunSuite
 
 import java.time.LocalDateTime
+import javax.mail.internet.InternetAddress
 import scala.language.higherKinds
 
 class FormTests extends AnyFunSuite with FormTestHelpers {
@@ -70,6 +71,19 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
       assert(getControlValue(markup, name = n).isDefined)
       assert(getControlValue(markup, name = n).contains(v))
     }
+  }
+
+  test("rendering with default values provided through type-safe mechanism") {
+
+    val f = WebForm2(
+      Field(label = "URL", controls.URL()),
+      Field(label = "Email", controls.EmailAddr))
+
+    val markup = f.html(action = "/here", method = "POST", new DefaultFormRenderer[Field],
+      values = Some((new java.net.URL("https://spendabit.co"), new InternetAddress("lina@test.co"))))
+
+    assert(getControlValue(markup, name = "url").contains("https://spendabit.co"))
+    assert(getControlValue(markup, name = "email").contains("lina@test.co"))
   }
 
   test("form using all-custom HTML with a radio-button set") {
