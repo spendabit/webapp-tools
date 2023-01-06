@@ -5,10 +5,10 @@ import scala.xml.UnprefixedAttribute
 package object util {
 
   /** Given a set of parameters (`params`), that have presumably been derived from values
-    * submitted via form-submission HTTP request, populate all corresponding form-fields found
+    * submitted via a form-submission HTTP request, populate all corresponding form-fields found
     * in the given `html`.
     *
-    * Less abstractly, as an example, if `params` were Map("email" -> Seq("joe@test.com")) and
+    * Here's an example: If `params` were Map("email" -> Seq("joe@test.com")) and
     * `html` contained an <input name="email" />, it would be returned (in the same place in the
     * HTML/XML it was originally in) with its 'value' attribute set to "joe@test.com".
     */
