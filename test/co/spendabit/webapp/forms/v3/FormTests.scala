@@ -59,7 +59,7 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
 
   test("rendering with entered values") {
 
-    val f = new WebForm3(
+    val f = WebForm3(
       Field(label = "Email address", controls.EmailAddr),
       Field(label = "Your name", controls.TextLine),
       Field(label = "Your story", controls.Textarea))
@@ -247,7 +247,7 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
 
   test("validate using `URLField`") {
 
-    val f = new WebForm1(Field(label = "Your website", controls.URL()))
+    val f = WebForm1(Field(label = "Your website", controls.URL()))
 
     val invalid = Seq(
       "my-site", "//impossible. com", "www.//Theimprovement. Com", "jokes .org",
@@ -293,7 +293,7 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
   // our "macro" (code generation) as that required for `WebForm2` and on up.
   test("`WebForm1` works properly") {
 
-    val f = new WebForm1(Field(label = "Temperature", controls.TextLine))
+    val f = WebForm1(Field(label = "Temperature", controls.TextLine))
 
     // Previously, an issue with the way we defined `WebForm1` (using a val in place of def) led
     // to a `NullPointerException`.
@@ -306,7 +306,7 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
   }
 
   test("code for WebFormX classes (e.g. `WebForm2`, `WebForm3`, etc) is properly generated") {
-    val form = new WebForm4(
+    val form = WebForm4(
       Field(label = "Field 1", controls.Textarea),
       Field(label = "Field 2", controls.URL()),
       Field(label = "Field 3", controls.EmailAddr),
