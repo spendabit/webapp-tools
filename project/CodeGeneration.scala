@@ -18,7 +18,6 @@ object CodeGeneration {
     s"""
       |package co.spendabit.webapp.forms.v3
       |
-      |import co.spendabit.webapp.forms.controls.Field
       |import co.spendabit.webapp.forms.v3._
       |
       |import scala.language.higherKinds
