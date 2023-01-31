@@ -33,7 +33,7 @@ publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-publishArtifact in Test := false
+(Test / publishArtifact) := false
 
 pomExtra :=
   <url>https://github.com/spendabit/webapp-tools</url>
@@ -63,7 +63,7 @@ sonatypeProfileName := "co.spendabit"
 
 (Test / scalaSource) := { (Test / baseDirectory)(_ / "test") }.value
 
-unmanagedClasspath in Test += baseDirectory.value / "test" / "resources"
+(Test / unmanagedClasspath) += baseDirectory.value / "test" / "resources"
 
 // Use "-oF" switch to get full stack-traces.
 (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaTest, "-oS")
