@@ -6,7 +6,7 @@ name := "Webapp Tools"
 
 version := build.libVersion
 
-crossScalaVersions := Seq("2.12.14")
+crossScalaVersions := Seq("2.12.18")
 
 scalacOptions ++= Seq("-feature", "-language:implicitConversions")
 
