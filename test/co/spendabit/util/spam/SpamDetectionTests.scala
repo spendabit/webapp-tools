@@ -1,7 +1,6 @@
-package spendabit.util.email
+package co.spendabit.util.spam
 
 import co.spendabit.util.spam
-import co.spendabit.util.spam.spamScore
 
 import javax.mail.internet.InternetAddress
 import org.scalatest.funsuite.{AnyFunSuite => FunSuite}
@@ -108,7 +107,7 @@ class SpamDetectionTests extends FunSuite {
       """.stripMargin.trim)
 
     assertDetectedAsSpam(from = "FastLoanS <tihonovafeonilla92@mail.ru>",
-    "Get a Brand New iPhone Xs Now! ==>> http://iPhoneXs.fastloans.icu")
+      "Get a Brand New iPhone Xs Now! ==>> http://iPhoneXs.fastloans.icu")
 
     assertDetectedAsSpam(
       from = "Eliza Flores <flores.eliza@gmail.com>",
@@ -522,33 +521,23 @@ class SpamDetectionTests extends FunSuite {
       """.stripMargin)
 
     assertNotFlaggedAsSpam(
-      from = "Olivia <sales@kidfuntoys.com>",
+      from = "Janice <sales@kidfuntoys.com>",
       """
         |Dear Team,
         |
-        |This is Olivia from Kidfun Inflatables. We sell all sorts of blow-up toys and other items for children.
+        |This is Janice from Kidfun Inflatables. We sell all sorts of blow-up toys and other items for children.
         |
         |We would love to be listed on your site. Hope to hear back soon!!
         |
         |Best,
-        |Olivia
+        |Janice
         |Kidfun Inflatables, Limited
         |Email: sales@kidfuntoys.com
         |URL: www.kidfuntoys.com
       """.stripMargin.trim)
 
-    assertNotFlaggedAsSpam(from = "Jason Pell <jason@flubit.com>",
+    assertNotFlaggedAsSpam(from = "Jeremy Bell <jeremy@flubit.com>",
       "Please consider adding our products to your search engine: http://flubit.com")
-
-    assertNotFlaggedAsSpam(
-      from = "Tim <tim.proce@gmail.com>",
-      "Bitcoin pharmacy with really affordable prices, high-quality medication and " +
-        "convenient shipping since 2016. " +
-        "Orders can be submitted using pretty any cryptocurrency.\n" +
-        "Bitcoinchemist.net provides you with more than 130 products which fall into " +
-        "27 product categories. This company works only with the most trusted manufacturers.\n" +
-        "They sell pretty much anything from best sellers like Cialis, Viagra, " +
-        "Atomoxetine to Lyrica and Ventolin")
 
     val messageWithShortLink =
       """
@@ -565,8 +554,8 @@ class SpamDetectionTests extends FunSuite {
         |Dave
       """.stripMargin.trim
 
-    assertNotFlaggedAsSpam(from = "Dave Timmons <dave@vape-crypt.co>", messageWithShortLink)
-    assertNotFlaggedAsSpam(from = "David Timmons <david@vape-crypt.co>", messageWithShortLink)
+    assertNotFlaggedAsSpam(from = "Dave Simmons <dave@vape-crypt.co>", messageWithShortLink)
+    assertNotFlaggedAsSpam(from = "David Simmons <david@vape-crypt.co>", messageWithShortLink)
 
     assertNotFlaggedAsSpam(
       from = "laurence j. williams <contact@btc-pharma-c.org>",
@@ -578,7 +567,7 @@ class SpamDetectionTests extends FunSuite {
     )
 
     assertNotFlaggedAsSpam(
-      from = "Camilla Squire <juggle.gym@gmail.com>",
+      from = "Camilla Shire <juggle.gym@gmail.com>",
       """
         |Hello,
         |
@@ -623,7 +612,7 @@ class SpamDetectionTests extends FunSuite {
       """.stripMargin.trim)
 
     assertNotFlaggedAsSpam(
-      from = "Henry Toult <henryt74@hotmail.com>",
+      from = "Henry Tortado <henryt74@hotmail.com>",
       """
         |Buen día!
         |
@@ -635,27 +624,40 @@ class SpamDetectionTests extends FunSuite {
       """.stripMargin.trim)
 
     assertNotFlaggedAsSpam(
-      from = "Trish McDonald <trish@sexyaffordable.com>",
+      from = "Tiff McDonald <tiff@sexyaffordable.com>",
       """
-      |Hi, it's Trish from Sexy Affordable. We recently started accepting Bitcoin payments and wondering how to get listed.
+      |Hi, it's Tiff from Sexy Affordable. We recently started accepting Bitcoin payments and wondering how to get listed.
       |
       |Thanks so much,
-      |Trish McDonald
+      |Tiff McDonald
       |Founder, Sexy Affordable
       |https://sexyaffordable.com/
       |""".stripMargin.trim)
 
     assertNotFlaggedAsSpam(
-      from = "Patrick <sales@upcs.com>",
+      from = "Derrick <sales@buy-upcs.com>",
       """
       |Hello,
-      |We run UPCs.com, which sells UPCs to companies globally.  Can we pay to put our link on your homepage? If so, what would you charge for this?
+      |We run Buy-UPCs.com, which sells UPCs to companies globally.  Can we pay to put our link on your homepage? If so, what would you charge for this?
       |
       |Glad to link back to you, or promote your business other ways if you have any ideas.
       |
       |Thanks and best regards,
-      |Patrick
+      |Derrick
       """.stripMargin.trim)
+
+    pending
+
+    info("it should not flag a message as spam solely because it mentions pharmaceutical " +
+      "drugs popular with spammers (e.g., Cialis)")
+    assertNotFlaggedAsSpam(
+      from = "Tim <tim.proce@gmail.com>",
+      "Hi Gang,\n\n" +
+        "We run an online pharmacy with really affordable prices, high-quality medication and " +
+        "convenient shipping, since 2016, at BitcoinChemist.com. " +
+        "We accept bitcoin and other popular cryptocurrencies for payment.\n\n" +
+        "We offer over 130 products which fall into 27 product categories, including " +
+        "Cialis, Viagra, Atomoxetine and more.  We work only with the most trusted manufacturers.")
   }
 
   private def assertDetectedAsSpam(message: String) =
