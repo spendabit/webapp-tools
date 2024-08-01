@@ -472,6 +472,15 @@ class SpamDetectionTests extends FunSuite {
         "click here to accept it and chat with her. She is online.\n" +
         "https://sexlovers.club/chat/HornyShriya/")
 
+    assertDetectedAsSpam(
+      from = "Phil Stewart <noreplyhere@aol.com>",
+      "Want Your Ad Everywhere? Reach Millions Instantly! For less than $100 I can blast " +
+        "your message to website contact forms globally. Contact me via skype or email below for " +
+        "info\n\n" +
+        "P. Stewart\n" +
+        "Email: ws5gp6@submitmaster.xyz\n" +
+        "Skype: form-blasting")
+
     pending
 
     assertConsideredLikelyToBeSpam(

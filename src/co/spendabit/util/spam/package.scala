@@ -25,7 +25,7 @@ package object spam {
     strikes
   }
 
-  val strategies = Seq(
+  private val strategies = Seq(
 
     Strategy("has sender with no capital letters in name", { m =>
       val from = m.from
@@ -52,10 +52,15 @@ package object spam {
         0.0
     }),
 
-    Strategy("uses Gmail, Hotmail, Yahoo, or GMX.de address", { m =>
+    Strategy("uses address from Gmail, Hotmail, Yahoo, or other popular free email service", { m =>
       val host = m.from.getAddress.split('@').last
-      val triggerHosts = Seq("gmail.com", "hotmail.com", "yahoo.com", "gmx.de")
+      val triggerHosts = Seq("aol.com", "gmail.com", "hotmail.com", "yahoo.com", "gmx.de")
       if (triggerHosts.contains(host)) 0.15 else 0.0
+    }),
+
+    Strategy("uses 'no reply' email address", { m =>
+      val hasNoReply = m.from.getAddress.contains("no") && m.from.getAddress.contains("reply")
+      if (hasNoReply) 0.4 else 0.0
     }),
 
     Strategy("has URL for sender", { m =>
@@ -92,7 +97,7 @@ package object spam {
 
     Strategy("has lines with excess capitalized words (e.g., 'Title Cased Sentences')", { m =>
       val linesWithExcessCapitalizedWords = m.lines.count { l =>
-        val wordsOnLine = l.split(' ').map(_.trim).filterNot(_.length == 0)
+        val wordsOnLine = l.split(' ').map(_.trim).filterNot(_.isEmpty)
         wordsOnLine.count(_.head.isUpper) > wordsOnLine.length / 2.0 && wordsOnLine.length > 3
       }
       linesWithExcessCapitalizedWords.toDouble / m.lines.length
@@ -159,7 +164,7 @@ package object spam {
     Strategy("has bizarre tendency to use line-breaks after periods, " +
              "but not related to line length", { m =>
       val linesEndingWithDot = m.lines.map(_.trim).
-        filter { l => l.length > 0 && l.split(' ').length >= 5 &&
+        filter { l => l.nonEmpty && l.split(' ').length >= 5 &&
           (l.endsWith(".") || l.last.isLetterOrDigit) }
       val lengths = linesEndingWithDot.map(_.length)
 
@@ -309,7 +314,7 @@ package object spam {
 
   private def stripPunctuation(word: String) = word.reverse.dropWhile(!_.isLetterOrDigit).reverse
 
-  case class Strategy(name: String, points: Message => Double)
+  private case class Strategy(name: String, points: Message => Double)
 
   private lazy val triggerMarkup = Seq("|", "==>", "<a ", "[url", "start your free trial")
 
