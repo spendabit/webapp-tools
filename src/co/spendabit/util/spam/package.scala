@@ -179,6 +179,10 @@ package object spam {
       }
     }),
 
+    Strategy("has no paragraph separation", { m =>
+      if (m.lines.count(_.trim.isEmpty) == 0 && m.lines.length > 1) 0.2 else 0.0
+    }),
+
     Strategy("has dollar signs", { m =>
       m.body.count(_ == '$')
     }),

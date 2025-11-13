@@ -481,7 +481,33 @@ class SpamDetectionTests extends FunSuite {
         "Email: ws5gp6@submitmaster.xyz\n" +
         "Skype: form-blasting")
 
+    assertDetectedAsSpam(from = "Sandra Stukes <stukes.sandra2@gmail.com>",
+      "Want to see more visitors to spendabit.co with our Organic Website Traffic service?\n" +
+        "Try here:  https://rb.gy/p82gvr")
+
     pending
+
+    assertDetectedAsSpam(
+      from = "Kandace Le Souef <kandace.lesouef38@gmail.com>",
+      "Want to generate amazing content? Need videos or text-to-speech? " +
+        "Check out these 3 Amazing AI Tools: \n" +
+        "**Create stunning videos  \n" +
+        "**Produce written content quickly  \n" +
+        "**Convert text to realistic speech  \n" +
+        "Get started today! http://3amazingaitools.top/\n")
+
+    assertDetectedAsSpam(
+      from = "Phil Stewart <noreplyhere@aol.com>",
+      // The phone number and company could provide extra powder for future extensions to spam-detection...
+      // phone = "342-123-4456", company = "Colette Burgoyne",
+      "Want to get millions of people to visit your website or video economically?\n" +
+        " If you’re interested in learning more about how this works, reach out to me using " +
+        "the contact info below.\n\n" +
+        "Regards,\n" +
+        "Colette Burgoyne\n" +
+        "Email: Colette.Burgoyne@morebiz.my\n" +
+        "Website: http://7ct2bc.form-marketing.top\n" +
+        "Skype: marketingwithcontactforms")
 
     assertConsideredLikelyToBeSpam(
       from = "Henryfah <alanpiano@mac.com>",
@@ -654,6 +680,14 @@ class SpamDetectionTests extends FunSuite {
       |Thanks and best regards,
       |Derrick
       """.stripMargin.trim)
+
+    info("it should not be too aggressive in penalizing short emails with no empty lines " +
+      "between paragraphs/sentences")
+    assertNotFlaggedAsSpam(
+      from = "Sandra Stukes <sandra@scoot-pos.com>",
+        "Would it be possible to have a quick call to learn more about your plans and " +
+          "the Product Data you make available?\n" +
+          "We are possibly interested in integrating into our POS offering: http://scoot-pos.com/")
 
     pending
 
