@@ -15,7 +15,7 @@ resolvers ++= Seq(Classpaths.typesafeReleases)
 libraryDependencies ++= Seq(
   "javax.mail" % "mail" % "1.4.7",
   "commons-validator" % "commons-validator" % "1.7",
-  "org.jsoup" % "jsoup" % "1.15.3",
+  "org.jsoup" % "jsoup" % "1.19.1",
   "org.scalatest" %% "scalatest" % "3.1.4",
   "org.scalatra" %% "scalatra-scalatest" % "2.8.4",
   "org.scalatra" %% "scalatra" % "2.8.4",
