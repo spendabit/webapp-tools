@@ -6,5 +6,6 @@ After ensuring the test-suite passes (`sbt "+ test"`), run the following two
 commands on the `sbt` console:
 ```
 + publishSigned
-sonatypeRelease
+sonaUpload
+sonaRelease
 ```
