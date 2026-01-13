@@ -1,4 +1,3 @@
-import xerial.sbt.Sonatype.SonatypeKeys.sonatypeProfileName
 
 organization := "co.spendabit"
 
@@ -15,7 +14,7 @@ resolvers ++= Seq(Classpaths.typesafeReleases)
 libraryDependencies ++= Seq(
   "javax.mail" % "mail" % "1.4.7",
   "commons-validator" % "commons-validator" % "1.7",
-  "org.jsoup" % "jsoup" % "1.15.3",
+  "org.jsoup" % "jsoup" % "1.19.1",
   "org.scalatest" %% "scalatest" % "3.1.4",
   "org.scalatra" %% "scalatra-scalatest" % "2.8.4",
   "org.scalatra" %% "scalatra" % "2.8.4",
@@ -25,7 +24,11 @@ libraryDependencies ++= Seq(
 
 publishMavenStyle := true
 
-publishTo := sonatypePublishToBundle.value
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 
 (Test / publishArtifact) := false
 
@@ -50,8 +53,6 @@ pomExtra :=
       <organizationUrl>https://spendabit.co/</organizationUrl>
     </developer>
   </developers>
-
-sonatypeProfileName := "co.spendabit"
 
 (Compile / scalaSource) := { (Compile / baseDirectory)(_ / "src") }.value
 
