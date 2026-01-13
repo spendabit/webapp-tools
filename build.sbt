@@ -1,4 +1,3 @@
-import xerial.sbt.Sonatype.SonatypeKeys.sonatypeProfileName
 
 organization := "co.spendabit"
 
@@ -25,7 +24,11 @@ libraryDependencies ++= Seq(
 
 publishMavenStyle := true
 
-publishTo := sonatypePublishToBundle.value
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 
 (Test / publishArtifact) := false
 
@@ -50,8 +53,6 @@ pomExtra :=
       <organizationUrl>https://spendabit.co/</organizationUrl>
     </developer>
   </developers>
-
-sonatypeProfileName := "co.spendabit"
 
 (Compile / scalaSource) := { (Compile / baseDirectory)(_ / "src") }.value
 
