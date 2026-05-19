@@ -152,12 +152,12 @@ package object spam {
         0.0
     }),
 
-    Strategy("has more commas than other punctuation", { m =>
-      if (m.tokens.count(_.last == ',') > m.tokens.count(t => Seq('.', '!', ':').contains(t.last)))
-        0.5
-      else
-        0
-    }),
+    // Strategy("has more commas than other punctuation", { m =>
+    //   if (m.tokens.count(_.last == ',') > m.tokens.count(t => Seq('.', '!', ':').contains(t.last)))
+    //     0.5
+    //   else
+    //     0
+    // }),
 
     // TODO: Rework this strategy to analyze lines *within* paragraphs, rather than based on
     // TODO: what characters lines end with.

@@ -689,6 +689,26 @@ class SpamDetectionTests extends FunSuite {
           "the Product Data you make available?\n" +
           "We are possibly interested in integrating into our POS offering: http://scoot-pos.com/")
 
+    info("case of email that is well-worded and includes a list of things, but has a couple " +
+      "links/URLs to the same website")
+    assertNotFlaggedAsSpam(
+      from = "Roberta Dover <roberta@joinmomo.com>",
+      "Hi,  we've spotted a pattern of inconsistencies while using the API I'd love to " +
+        "understand better.\n\n" +
+        "For example, I had a product number 24203700000 on a receipt from Safeway for " +
+        "strawberries, and searching for it gave me an inferred UPC " +
+        "242037000008 - go-code.com/search?q=24203700000. The page itself appears " +
+        "self-inconsistent:\n" +
+        "  - Image - strawberries (looks correct)\n" +
+        "  - Category - strawberries / produce-leaning (looks correct)\n" +
+        "  - Product name - Mitica Drunken Goat (a cheese)\n\n" +
+        "Does each surfaced field come from a single upstream source per UPC, or are they " +
+        "aggregated from different providers? I've also seen examples like " +
+        "Kind Bars (https://go-upc.com/search?q=602652170584) being mapped to Motor Vehicle " +
+        "Roll Cages & Bars - how exactly is the category sourced?\n\n" +
+        "Thanks,\n" +
+        "Roberta")
+
     pending
 
     info("it should not flag a message as spam solely because it mentions pharmaceutical " +
