@@ -296,7 +296,7 @@ package object spam {
       map(u => new URL(u))
 
     lazy val salutation: Option[String] = lines.headOption.filter(l =>
-      l.startsWith("Hi") || l.startsWith("Hello") || l.startsWith("Dear"))
+      l.startsWith("Hi") || l.startsWith("Hello") || l.startsWith("Hey") || l.startsWith("Dear"))
 
     /** By "closing" we mean the line (if any) that contains "sincerely" or "regards" or "thanks".
       */
@@ -323,7 +323,7 @@ package object spam {
   private lazy val triggerMarkup = Seq("|", "==>", "<a ", "[url", "start your free trial")
 
   private lazy val triggerWords = Seq("cialis", "sildenafil", "viagra", "tadalafil",
-    "invest", "investing", "investment")
+    "invest", "investing", "investment", "shipping")
 
   private lazy val urlRegex = "\\s+(http(s)?://|www\\.)?[-.a-zA-Z0-9]{3,}\\.[a-z]{2,3}".r
 
