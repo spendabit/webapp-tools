@@ -411,6 +411,25 @@ class SpamDetectionTests extends FunSuite {
         |Frank
       """.stripMargin.trim)
 
+    assertDetectedAsSpam(
+      from = "Selina <sales@caredogbest.com>",
+      """
+      |Hey there
+      |
+      |I wanted to reach out and let you know about our new dog harness. It's really easy to put on and take off - in just 2 seconds - and it's personalized for each dog.
+      |Plus, we offer a lifetime warranty so you can be sure your pet is always safe and stylish.
+      |
+      |We've had a lot of success with it so far and I think your dog would love it.
+      |
+      |Get yours today with 50% OFF: https://caredogbest.com
+      |
+      |FREE Shipping - TODAY ONLY!
+      |
+      |Best,
+      |
+      |Selina
+      """.stripMargin.trim)
+
     assertConsideredLikelyToBeSpam(
       from = "RobertFauri <jackob.james@yandex.ru>",
       """
