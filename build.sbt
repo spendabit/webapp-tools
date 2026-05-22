@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "org.scalatra" %% "scalatra-scalatest" % "2.8.4",
   "org.scalatra" %% "scalatra" % "2.8.4",
   "commons-fileupload" % "commons-fileupload" % "1.4",
-  "org.log4s" %% "log4s" % "1.10.0"
+  "org.log4s" %% "log4s" % "1.10.0",
+  "ch.qos.logback" % "logback-classic" % "1.5.32" % Test
 )
 
 publishMavenStyle := true
