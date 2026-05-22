@@ -2,9 +2,8 @@ package co.spendabit.email
 
 import javax.mail
 import javax.mail.internet.{MimeMessage, InternetAddress}
-import scala.collection.convert.WrapAsJava
 
-trait BasicTextEmailSupport extends WrapAsJava {
+trait BasicTextEmailSupport {
 
   sealed trait Protocol { def code: String }
   case object SMTP  extends Protocol { val code = "smtp" }

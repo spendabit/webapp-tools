@@ -3,11 +3,13 @@ package co.spendabit.html.jsoup
 import org.jsoup.nodes.{Attribute, Attributes, Element}
 import org.jsoup.select.Elements
 
+import scala.collection.JavaConverters._
+
 trait ImplicitConversions {
 
-  implicit def elemsToList(elems: Elements): List[Element] =
-    scala.collection.JavaConversions.asScalaBuffer(elems).toList
+  implicit def elemsToList(elems: Elements): Seq[Element] =
+    elems.asScala.toSeq
 
-  implicit def attributesToList(attrs: Attributes): List[Attribute] =
-    scala.collection.JavaConversions.asScalaBuffer(attrs.asList()).toList
+  implicit def attributesToList(attrs: Attributes): Seq[Attribute] =
+    attrs.asScala.toSeq
 }
