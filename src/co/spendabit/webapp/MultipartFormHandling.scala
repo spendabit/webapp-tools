@@ -26,7 +26,7 @@ trait MultipartFormHandling {
     val uploadProcessor = new ServletFileUpload(factory)
     uploadProcessor.setFileSizeMax(uploadConfig.maxFileSize)
 
-    uploadProcessor.parseRequest(req).asScala
+    uploadProcessor.parseRequest(req).asScala.toSeq
   }
 
   protected def isMultipartRequest(req: HttpServletRequest): Boolean = {

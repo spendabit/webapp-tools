@@ -323,7 +323,7 @@ class FormTests extends AnyFunSuite with FormTestHelpers {
 
     val enteredValues = Map("email" -> "dave@form-fun.com", "name" -> "Dave", "spiel" -> "Ok.")
     assert(f.validate(enteredValues).isValid)
-    assert(!f.validate(enteredValues.filterKeys(_ != "email")).isValid)
+    assert(!f.validate(enteredValues.filterKeys(_ != "email").toMap).isValid)
 
     val f2 = v3.Form(
       Field(label = "Color", controls.TextLine),
