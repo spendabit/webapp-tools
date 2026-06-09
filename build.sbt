@@ -15,9 +15,9 @@ libraryDependencies ++= Seq(
   "javax.mail" % "mail" % "1.4.7",
   "commons-validator" % "commons-validator" % "1.7",
   "org.jsoup" % "jsoup" % "1.19.1",
-  "org.scalatest" %% "scalatest" % "3.1.4",
-  "org.scalatra" %% "scalatra-scalatest" % "2.8.4",
-  "org.scalatra" %% "scalatra" % "2.8.4",
+  "org.scalatest" %% "scalatest" % "3.2.20",
+  "org.scalatra" %% "scalatra-scalatest-javax" % "3.1.2",
+  "org.scalatra" %% "scalatra-javax" % "3.1.2",
   "commons-fileupload" % "commons-fileupload" % "1.4",
   "org.log4s" %% "log4s" % "1.10.0",
   "ch.qos.logback" % "logback-classic" % "1.5.32" % Test
