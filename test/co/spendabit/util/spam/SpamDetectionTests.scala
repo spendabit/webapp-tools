@@ -547,6 +547,28 @@ class SpamDetectionTests extends FunSuite {
 
   test("avoiding false-positives on legit inquiries") {
 
+    assertNotFlaggedAsSpam(from = "Dennis Sharp <dsharp@techpros.tech>",
+      "Hi Go-Barcode team,\n\n" +
+        "We've developed MixMaster, a liquor inventory and pour-monitoring system for bars " +
+        "and restaurants. We're looking for a vendor-maintained cloud database to identify " +
+        "alcohol bottles from UPC/EAN scans.\n\n" +
+        "1. What coverage do you have for wine, beer, and spirits in the US, including " +
+        "product names, brands, bottle volumes, ABV, packaging and images? Could we test " +
+        "an inventory sample of data?\n" +
+        "2. How often do you perform product updates, correct inaccurate records, and pull " +
+        "in information on missing bottles, and how are those changes delivered through " +
+        "the API?\n" +
+        "3. What are the pricing and licensing terms for storing and displaying this data " +
+        "within our commercial software, including retaining historical inventory records " +
+        "if the subscription ends?\n\n" +
+        "Please reply to dsharp@techpros.tech and copy " +
+        "Paul Buro (pburo@techpros.tech) and Erric Calabaza (erriccalabaza@gmail.com).\n\n" +
+        "Thanks,\n" +
+        "Dennis Sharp\n" +
+        "Executive Vice President\n" +
+        "TheMixMaster.com\n" +
+        "https://themixmaster.com/")
+
     assertNotFlaggedAsSpam(
       """
         |Hello, I have performance and 4x4 parts webstore with bitcoin as payment option. What
