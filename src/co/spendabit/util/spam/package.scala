@@ -1,6 +1,6 @@
 package co.spendabit.util
 
-import java.net.URL
+import java.net.URI
 
 import javax.mail.internet.InternetAddress
 
@@ -54,8 +54,8 @@ package object spam {
 
     Strategy("uses address from Gmail, Hotmail, Yahoo, or other popular free email service", { m =>
       val host = m.from.getAddress.split('@').last
-      val triggerHosts = Seq("aol.com", "gmail.com", "hotmail.com", "yahoo.com", "gmx.de")
-      if (triggerHosts.contains(host)) 0.15 else 0.0
+      val triggerHosts = Seq("aol.com", "gmail.com", "hotmail.com", "msn.com", "yahoo.com", "gmx.de")
+      if (triggerHosts.contains(host)) 0.3 else 0.0
     }),
 
     Strategy("uses 'no reply' email address", { m =>
@@ -83,8 +83,9 @@ package object spam {
     }),
 
     Strategy("has ALL-CAPS words", { m =>
-      val allCapsWords = m.words.
-        filter(w => w.count(c => !c.isLower) == w.length && w.length >= 5)
+      val allCapsWords = m.words
+        .filterNot(_.contains('/'))
+        .filter(w => w.count(c => !c.isLower) == w.length && w.length >= 5)
       math.min(allCapsWords.length / 2.5, 1.5)
     }),
 
@@ -173,7 +174,7 @@ package object spam {
       } else {
         val lineLengthVariance = (lengths.max - lengths.min) / lengths.min.toDouble
         if (lineLengthVariance > 0.5)
-          0.2
+          0.1
         else
           0
       }
@@ -194,7 +195,7 @@ package object spam {
 
     Strategy("has URLs", { m =>
       val numURLs = urlRegex.findAllMatchIn(m.body).length
-      math.min(math.max(0, numURLs - 0.5), 2)
+      math.min(math.max(0, numURLs - 0.6), 2)
     }),
 
     Strategy("has 'short-link' URL", { m =>
@@ -272,7 +273,7 @@ package object spam {
 
     Strategy("includes email address in message body that does not match the sender", { m =>
       val emailAddrs = "[+-_.a-zA-Z0-9]+@[-.a-zA-Z0-9]+".r.findAllMatchIn(m.body).map(_.group(0))
-      if (emailAddrs.exists(_ != m.from.getAddress)) 0.35 else 0
+      if (emailAddrs.exists(_ != m.from.getAddress)) 0.25 else 0
     })
   )
 
@@ -292,8 +293,8 @@ package object spam {
     lazy val words: Seq[String] = tokens.map(w => stripPunctuation(w.trim)).
       filterNot(w => w == "" || !w.exists(_.isLetterOrDigit))
 
-    lazy val urls: Seq[URL] = tokens.filter(_.matches("^http(s)?://[-a-zA-Z0-9]+\\.[a-z]+/.*")).
-      map(u => new URL(u))
+    lazy val urls: Seq[URI] = tokens.filter(_.matches("^http(s)?://[-a-zA-Z0-9]+\\.[a-z]+/.*")).
+      map(u => new URI(u))
 
     lazy val salutation: Option[String] = lines.headOption.filter(l =>
       l.startsWith("Hi") || l.startsWith("Hello") || l.startsWith("Hey") || l.startsWith("Dear"))
